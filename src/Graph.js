@@ -1,362 +1,351 @@
-// Keep these lines for a best effort IntelliSense of Visual Studio 2017.
-/// <reference path="../../Packages/Beckhoff.TwinCAT.HMI.Framework.12.742.5/runtimes/native1.12-tchmi/TcHmi.d.ts" />
-
 class Graph extends LGraph {
+  constructor(o) {
+    super(o);
 
-    constructor(o) {
+    this.MAXIMUM_UNDO = 20;
+    this.DEBOUNCE_TIMEOUT = 500;
 
-        super(o);
+    this.timer = null;
+    this.timeout = this.DEBOUNCE_TIMEOUT;
 
-        this.MAXIMUM_UNDO = 20;
-        this.DEBOUNCE_TIMEOUT = 500;
+    this.block_configure_events = false;
 
-        this.timer = null;
-        this.timeout = this.DEBOUNCE_TIMEOUT;
+    this.statusHandlers = [];
 
-        this.block_configure_events = false;
+    this.abilities = [];
+    this.addAbility(GraphRouterMemoryAbility);
 
-        this.statusHandlers = [];
+    this.registerWidgetByType("NUMBER", Widget_Number);
+    this.registerWidgetByType("COMBO", Widget_Combo);
+    this.registerWidgetByType("SLIDER", Widget_Slider);
+    this.registerWidgetByType("SEPARATOR", Widget_Separator);
+    this.registerWidgetByType("BLANK", Widget_Blank);
 
-        this.abilities = [];
-        this.addAbility(GraphRouterMemoryAbility);
+    this.registerWidgetByType("BOOL", Widget_Bool);
+    this.registerWidgetByType("STRING", Widget_String);
+    this.registerWidgetByType("BYTE", Widget_IecAnyInteger);
+    this.registerWidgetByType("DINT", Widget_IecAnyInteger);
+    this.registerWidgetByType("DWORD", Widget_IecAnyInteger);
+    this.registerWidgetByType("INT", Widget_IecAnyInteger);
+    this.registerWidgetByType("LINT", Widget_IecAnyInteger);
+    this.registerWidgetByType("LWORD", Widget_IecAnyInteger);
+    this.registerWidgetByType("SINT", Widget_IecAnyInteger);
+    this.registerWidgetByType("UDINT", Widget_IecAnyInteger);
+    this.registerWidgetByType("UINT", Widget_IecAnyInteger);
+    this.registerWidgetByType("ULINT", Widget_IecAnyInteger);
+    this.registerWidgetByType("USINT", Widget_IecAnyInteger);
+    this.registerWidgetByType("WORD", Widget_IecAnyInteger);
+    this.registerWidgetByType("LREAL", Widget_IecAnyFloat);
+    this.registerWidgetByType("REAL", Widget_IecAnyFloat);
 
-        this.registerWidgetByType('NUMBER', Widget_Number);
-        this.registerWidgetByType('COMBO', Widget_Combo);
-        this.registerWidgetByType('SLIDER', Widget_Slider);
-        this.registerWidgetByType('SEPARATOR', Widget_Separator);
-        this.registerWidgetByType('BLANK', Widget_Blank);
+    this.registerWidgetByType("ENUM", Widget_IecEnum);
+  }
 
-        this.registerWidgetByType('BOOL', Widget_Bool);
-        this.registerWidgetByType('STRING', Widget_String);
-        this.registerWidgetByType('BYTE', Widget_IecAnyInteger);
-        this.registerWidgetByType('DINT', Widget_IecAnyInteger);
-        this.registerWidgetByType('DWORD', Widget_IecAnyInteger);
-        this.registerWidgetByType('INT', Widget_IecAnyInteger);
-        this.registerWidgetByType('LINT', Widget_IecAnyInteger);
-        this.registerWidgetByType('LWORD', Widget_IecAnyInteger);    
-        this.registerWidgetByType('SINT', Widget_IecAnyInteger);
-        this.registerWidgetByType('UDINT', Widget_IecAnyInteger);
-        this.registerWidgetByType('UINT', Widget_IecAnyInteger);
-        this.registerWidgetByType('ULINT', Widget_IecAnyInteger);
-        this.registerWidgetByType('USINT', Widget_IecAnyInteger);
-        this.registerWidgetByType('WORD', Widget_IecAnyInteger);
-        this.registerWidgetByType('LREAL', Widget_IecAnyFloat);
-        this.registerWidgetByType('REAL', Widget_IecAnyFloat);
+  install = function (nodePack) {
+    nodePack.RegisterWithGraph(this);
+  };
 
-        this.registerWidgetByType('ENUM', Widget_IecEnum);
- 
-    };
+  addNewIecDataType = function (dataTypeAsString) {
+    LiteGraph.addIecDataType(dataTypeAsString);
+  };
 
-    install = function (nodePack) {
-        nodePack.RegisterWithGraph(this);
-    };
+  registerNodeByType = function (type, node) {
+    LiteGraph.registerNodeType(type, node);
+  };
 
-    addNewIecDataType = function (dataTypeAsString) {
-        LiteGraph.addIecDataType(dataTypeAsString);
+  registerWidgetByType = function (type, widget) {
+    LiteGraph.addVisualWidgetByType(widget, type);
+  };
+
+  registerStatusHandler(handler) {
+    this.statusHandlers.push(handler);
+  }
+
+  addAbility(ability) {
+    this.abilities.push(new ability(this));
+  }
+
+  // new method used to indicate a structure change has happened in the graph.
+  configurationHasChanged() {
+    this.uuid = generateUUID();
+
+    if (this.onConfigurationHasChanged) {
+      this.onConfigurationHasChanged();
     }
 
-    registerNodeByType = function (type, node) {
-        LiteGraph.registerNodeType(type, node);
+    this.generateUndoPoint();
+  }
+
+  // new method used by nodes to notify when a property has been changed
+  propertyHasChanged(node, name, value) {
+    const graph = this;
+
+    clearTimeout(graph.timer);
+    this.timer = setTimeout(function () {
+      if (graph.onPropertyHasChanged) {
+        graph.onPropertyHasChanged(node, name, value);
+      }
+      graph.generateUndoPoint();
+    }, graph.timeout);
+  }
+
+  // catch LGraph onConfigure to trigger configuration has changed event
+  onConfigure(data) {
+    this.block_configure_events = false;
+    this.configurationHasChanged();
+  }
+
+  // catch LGraph onSerialize to add the uuid to the json
+  onSerialize(data) {
+    data.uuid = this.uuid;
+
+    if (this.onSerializeExtended) {
+      data = this.onSerializeExtended(data);
     }
 
-    registerWidgetByType = function (type, widget) {
-        LiteGraph.addVisualWidgetByType(widget, type);
+    return data;
+  }
+
+  // catch LGraph onNodeAdded to trigger configuration has changed event
+  onNodeAdded(node) {
+    if (!this.block_configure_events) {
+      this.configurationHasChanged();
+    }
+  }
+
+  // catch LGraph onNodeRemoved to trigger configuration has changed event
+  onNodeRemoved(node) {
+    if (!this.block_configure_events) {
+      this.configurationHasChanged();
+    }
+  }
+
+  // catch LGraph onNodeConnectionChange to trigger configuration has changed event
+  connectionChange(node, link_info) {
+    if (!this.block_configure_events) {
+      this.configurationHasChanged();
+    }
+  }
+
+  // request a graph undo
+  undo() {
+    if (this.undoData.end - this.undoData.begin <= 0) {
+      return;
     }
 
-    registerStatusHandler(handler) {
-        this.statusHandlers.push(handler);
-    };
-
-    addAbility(ability) {
-        this.abilities.push(new ability(this));
+    if (this.undoData.current_position <= this.undoData.begin) {
+      this.undoData.current_position = this.undoData.begin;
+      return;
     }
 
-    // new method used to indicate a structure change has happened in the graph. 
-    configurationHasChanged() {
+    this.undoData.disable = true;
+    this.undoData.current_position--;
+    this.configure(
+      JSON.parse(this.undoData["undoPoint_" + this.undoData.current_position])
+    );
+    this.undoData.disable = false;
+  }
 
-        this.uuid = generateUUID();
+  // request a graph redo
+  redo() {
+    if (this.undoData.current_position >= this.undoData.end) {
+      this.undoData.current_position = this.undoData.end;
+      return;
+    }
 
-        if (this.onConfigurationHasChanged) {
-            this.onConfigurationHasChanged();
-        }
+    this.undoData.disable = true;
+    this.undoData.current_position++;
+    this.configure(
+      JSON.parse(this.undoData["undoPoint_" + this.undoData.current_position])
+    );
+    this.undoData.disable = false;
+  }
 
-        this.generateUndoPoint();
-    };
+  // undo point generation
+  generateUndoPoint() {
+    if (typeof this.undoData == "undefined") {
+      this.undoData = { begin: 1, end: 1, current_position: 0, disable: false };
+    }
 
+    if (this.undoData.disable == true) {
+      return;
+    }
 
-    // new method used by nodes to notify when a property has been changed
-    propertyHasChanged(node, name, value) {
+    if (this.undoData.current_position < this.undoData.end) {
+      for (
+        var i = this.undoData.current_position + 1;
+        i <= this.undoData.end;
+        i++
+      ) {
+        delete this.undoData["undoPoint_" + i];
+      }
+      this.undoData.end = this.undoData.current_position;
+    }
 
-        const graph = this;
+    if (this.undoData.end - this.undoData.begin == this.MAXIMUM_UNDO) {
+      delete this.undoData["undoPoint_" + this.undoData.begin];
+      this.undoData.begin++;
+    }
 
-        clearTimeout(graph.timer);
-        this.timer = setTimeout(function () {
+    this.undoData.end++;
+    this.undoData.current_position++;
+    this.undoData["undoPoint_" + this.undoData.current_position] =
+      JSON.stringify(this.serialize());
+  }
 
-            if (graph.onPropertyHasChanged) {
-                graph.onPropertyHasChanged(node, name, value);
-            }
-            graph.generateUndoPoint();
+  // save graph to file
+  save() {
+    var data = JSON.stringify(this.serialize());
+    var file = new Blob([data]);
+    var url = URL.createObjectURL(file);
+    var element = document.createElement("a");
+    element.setAttribute("href", url);
+    element.setAttribute("download", "untitled.tcgraph");
+    element.style.display = "none";
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1000 * 60);
+  }
 
-        }, graph.timeout);
+  // load graph from file
+  load() {
+    var graph = this;
 
-    };
+    if (typeof FileReader === "undefined") {
+      console.log("File loading not supported by your browser");
+      return;
+    }
 
+    var inputElement = document.createElement("input");
 
-    // catch LGraph onConfigure to trigger configuration has changed event
-    onConfigure(data) {
-        this.block_configure_events = false;
-        this.configurationHasChanged();
-    };
+    inputElement.type = "file";
+    inputElement.accept = ".tcgraph";
+    inputElement.multiple = false;
 
-    // catch LGraph onSerialize to add the uuid to the json
-    onSerialize(data) {
-        data.uuid = this.uuid;
+    inputElement.addEventListener("change", function (data) {
+      if (inputElement.files) {
+        var file = inputElement.files[0];
+        var reader = new FileReader();
 
-        if (this.onSerializeExtended) {
-            data = this.onSerializeExtended(data);
-        }
-
-        return data;
-    };
-    
-    // catch LGraph onNodeAdded to trigger configuration has changed event
-    onNodeAdded(node) {
-        if (!this.block_configure_events) {
-            this.configurationHasChanged();
-        }
-    };
-
-    // catch LGraph onNodeRemoved to trigger configuration has changed event
-    onNodeRemoved(node) {
-        if (!this.block_configure_events) {
-            this.configurationHasChanged();
-        }
-    };
-
-    // catch LGraph onNodeConnectionChange to trigger configuration has changed event
-    connectionChange(node, link_info) {
-        if (!this.block_configure_events) {
-            this.configurationHasChanged();
-        }
-    };
-
-    // request a graph undo
-    undo() {
-
-        if (this.undoData.end - this.undoData.begin <= 0) {
-            return;
-        }
-
-        if (this.undoData.current_position <= this.undoData.begin) {
-            this.undoData.current_position = this.undoData.begin;
-            return;
-        }
-
-        this.undoData.disable = true;
-        this.undoData.current_position--;
-        this.configure(JSON.parse(this.undoData['undoPoint_' + this.undoData.current_position]));
-        this.undoData.disable = false;
-
-    };
-
-    // request a graph redo
-    redo() {
-
-        if (this.undoData.current_position >= this.undoData.end) {
-            this.undoData.current_position = this.undoData.end;
-            return;
-        }
-
-        this.undoData.disable = true;
-        this.undoData.current_position++;
-        this.configure(JSON.parse(this.undoData['undoPoint_' + this.undoData.current_position]));
-        this.undoData.disable = false;
-    };
-
-    // undo point generation
-    generateUndoPoint() {
-        if (typeof this.undoData == 'undefined') {
-            this.undoData = { begin: 1, end: 1, current_position: 0, disable: false };
-        }
-       
-        if (this.undoData.disable == true) {
-            return;
-        }
-
-        if (this.undoData.current_position < this.undoData.end) {
-            for (var i = this.undoData.current_position + 1; i <= this.undoData.end; i++) {
-                delete this.undoData['undoPoint_' + i];
-            }
-            this.undoData.end = this.undoData.current_position;
-        }
-
-        if (this.undoData.end - this.undoData.begin == this.MAXIMUM_UNDO) {
-
-            delete this.undoData['undoPoint_' + this.undoData.begin];
-            this.undoData.begin++;
-        }
-
-        this.undoData.end++;
-        this.undoData.current_position++;
-        this.undoData['undoPoint_' + this.undoData.current_position] = JSON.stringify(this.serialize());
-    };
-
-    // save graph to file
-    save() {
-        var data = JSON.stringify(this.serialize());
-        var file = new Blob([data]);
-        var url = URL.createObjectURL(file);
-        var element = document.createElement("a");
-        element.setAttribute('href', url);
-        element.setAttribute('download', "untitled.tcgraph");
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-        setTimeout(function () { URL.revokeObjectURL(url); }, 1000 * 60);
-    };
-
-    // load graph from file
-    load() {
-        var graph = this;
-
-        if (typeof FileReader === 'undefined') {
-            console.log('File loading not supported by your browser');
-            return;
-        }
-
-        var inputElement = document.createElement('input');
-
-        inputElement.type = 'file';
-        inputElement.accept = '.tcgraph';
-        inputElement.multiple = false;
-
-        inputElement.addEventListener('change', function (data) {
-
-            if (inputElement.files) {
-
-                var file = inputElement.files[0];
-                var reader = new FileReader();
-
-                reader.addEventListener('loadend', function (load_data) {
-
-                    if (reader.result)
-                        graph.configure(JSON.parse(reader.result));
-
-                });
-                reader.addEventListener('error', function (load_data) {
-                    console.log('File load error');
-                });
-
-                reader.readAsText(file);
-            }
+        reader.addEventListener("loadend", function (load_data) {
+          if (reader.result) graph.configure(JSON.parse(reader.result));
+        });
+        reader.addEventListener("error", function (load_data) {
+          console.log("File load error");
         });
 
-        inputElement.click();
-        return;
-    };
+        reader.readAsText(file);
+      }
+    });
 
-    // called by the api
-    updateStatus(status) {
-        var graph = this;
+    inputElement.click();
+    return;
+  }
 
-        if (!status) {
-            return;
+  // called by the api
+  updateStatus(status) {
+    var graph = this;
+
+    if (!status) {
+      return;
+    }
+
+    // graph status -------------------
+    if (status.content) {
+      status.content.forEach(updateGraphStatus);
+
+      function updateGraphStatus(graphStatus, index, array) {
+        graph.statusHandlers.forEach(function (statusHandler) {
+          statusHandler(graphStatus, graph);
+        });
+        graph.setDirtyCanvas(false, true);
+      }
+    }
+
+    // node status -------------------
+    if (status.nodes) {
+      status.nodes.forEach(updateNodeStatus);
+
+      var nodePanel = document.querySelector("#node-panel");
+
+      if (nodePanel) {
+        nodePanel.refreshPanel();
+      }
+
+      function updateNodeStatus(nodeStatus, index, array) {
+        let nodeId = nodeStatus.id;
+        let node = graph.getNodeById(nodeId);
+
+        if (!node) {
+          return;
         }
 
-        // graph status -------------------
-        if (status.content) {
-            status.content.forEach(updateGraphStatus);
+        node.statusHandlers.forEach(function (statusHandler) {
+          statusHandler(nodeStatus, node);
+        });
 
-            function updateGraphStatus(graphStatus, index, array) {
-                graph.statusHandlers.forEach(function (statusHandler) { statusHandler(graphStatus, graph) })
-                graph.setDirtyCanvas(false, true);
-            }
-        }
+        node.has_errors = nodeStatus.error && nodeStatus.error.length > 0;
 
-        // node status -------------------
-        if (status.nodes) {
+        node.currentStatus = nodeStatus;
 
-            status.nodes.forEach(updateNodeStatus);
+        graph.setDirtyCanvas(false, true);
+      }
+    }
+  }
 
-            var nodePanel = document.querySelector("#node-panel");
+  // overrides
+  // sections below have been added to override the core function of LGraph.
+  // -------------------------------------------------------------------------------------------------------------
 
-            if (nodePanel) {
-                nodePanel.refreshPanel();
-            }
+  // LGraph.configure(data, keep_old)
+  // --------------------------------
+  // This method was modified to add the block_configure_events bool.
+  // this is used to prevent undo points from being incorrectly made during a configure
+  configure(data, keep_old) {
+    this.block_configure_events = true;
+    super.configure(data, keep_old);
+  }
 
-            function updateNodeStatus(nodeStatus, index, array) {
+  // LGraph.clear()
+  // --------------
+  // This method was modified to trigger "configurationHasChanged" only if manually called, and not as a result
+  // of being called by "configure".  This uses the block_configure_events to decide this.
+  clear() {
+    super.clear();
+    if (!this.block_configure_events) {
+      this.configurationHasChanged();
+    }
+  }
 
-                let nodeId = nodeStatus.id;
-                let node = graph.getNodeById(nodeId);
+  // LGraph.start()
+  // --------------
+  // This method was modified to trigger "configurationHasChanged"
+  start(interval) {
+    super.start(interval);
+    this.configurationHasChanged();
+  }
 
-                if (!node) {
-                    return;
-                }
+  // LGraph.attachCanvas(graphcanvas)
+  // --------------------------------
+  // This method was mofidifed to allow for a new constructor check.
+  // initially LGraphCanvas, but changed to GraphCanvas
+  attachCanvas(graphcanvas) {
+    if (graphcanvas.constructor != GraphCanvas) {
+      // <- this line was changed
+      throw "attachCanvas expects a GraphCanvas instance";
+    }
+    if (graphcanvas.graph && graphcanvas.graph != this) {
+      graphcanvas.graph.detachCanvas(graphcanvas);
+    }
 
-                node.statusHandlers.forEach(function (statusHandler) { statusHandler(nodeStatus, node) })
+    graphcanvas.graph = this;
 
-                node.has_errors = nodeStatus.error && nodeStatus.error.length > 0;
-                      
-                node.currentStatus = nodeStatus;
-
-                graph.setDirtyCanvas(false, true);
-            }
-        }
-    };
-
-    // overrides
-    // sections below have been added to override the core function of LGraph.
-    // -------------------------------------------------------------------------------------------------------------
-
-
-    // LGraph.configure(data, keep_old)
-    // --------------------------------
-    // This method was modified to add the block_configure_events bool.
-    // this is used to prevent undo points from being incorrectly made during a configure
-    configure(data, keep_old) {
-        this.block_configure_events = true;
-        super.configure(data, keep_old);
-    };
-
-    // LGraph.clear()
-    // --------------
-    // This method was modified to trigger "configurationHasChanged" only if manually called, and not as a result 
-    // of being called by "configure".  This uses the block_configure_events to decide this.
-    clear() {
-        super.clear();
-        if (!this.block_configure_events) {
-            this.configurationHasChanged();
-        }
-    };
-
-    // LGraph.start()
-    // --------------
-    // This method was modified to trigger "configurationHasChanged" 
-    start(interval) {
-        super.start(interval);
-        this.configurationHasChanged();
-    };
-
-
-    // LGraph.attachCanvas(graphcanvas)
-    // --------------------------------
-    // This method was mofidifed to allow for a new constructor check.
-    // initially LGraphCanvas, but changed to GraphCanvas
-    attachCanvas(graphcanvas) {
-        if (graphcanvas.constructor != GraphCanvas) { // <- this line was changed
-            throw "attachCanvas expects a GraphCanvas instance";
-        }
-        if (graphcanvas.graph && graphcanvas.graph != this) {
-            graphcanvas.graph.detachCanvas(graphcanvas);
-        }
-
-        graphcanvas.graph = this;
-
-        if (!this.list_of_graphcanvas) {
-            this.list_of_graphcanvas = [];
-        }
-        this.list_of_graphcanvas.push(graphcanvas);
-    };
-
-};
+    if (!this.list_of_graphcanvas) {
+      this.list_of_graphcanvas = [];
+    }
+    this.list_of_graphcanvas.push(graphcanvas);
+  }
+}
