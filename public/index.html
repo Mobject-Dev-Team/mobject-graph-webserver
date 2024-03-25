@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>LiteGraph</title>
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="./litegraph/css/litegraph.css"
+    />
+
+    <link rel="stylesheet" type="text/css" href="./json-viewer.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="./iec61131-3.js"></script>
+    <script src="./UuidGen.js"></script>
+    <script src="./Base64.js"></script>
+    <script src="./json-viewer.js"></script>
+
+    <script src="./litegraph/src/litegraph.js"></script>
+    <script src="./src/mobjectClientConnection.js"></script>
+    <script src="./src/Graph.js"></script>
+    <script src="./src/AbilityBase.js"></script>
+    <script src="./src/DefaultInputPortFactory.js"></script>
+    <script src="./src/DefaultNodeClassFactory.js"></script>
+    <script src="./src/GraphCanvas.js"></script>
+    <script src="./src/HtmlDialogBase.js"></script>
+    <script src="./src/GraphRouterMemoryAbility.js"></script>
+    <script src="./src/NodeProtectionAbility.js"></script>
+    <script src="./src/NodeTriggerAbility.js"></script>
+
+    <script src="./src/NodeBase.js"></script>
+    <script src="./src/PlcApi.js"></script>
+    <script src="./src/WidgetBase.js"></script>
+    <script src="./src/Widget_Blank.js"></script>
+    <script src="./src/Widget_Bool.js"></script>
+    <script src="./src/Widget_Combo.js"></script>
+    <script src="./src/Widget_Number.js"></script>
+    <script src="./src/Widget_Separator.js"></script>
+    <script src="./src/Widget_Slider.js"></script>
+    <script src="./src/Widget_String.js"></script>
+    <script src="./src/Widget_IecAnyFloat.js"></script>
+    <script src="./src/Widget_IecAnyInteger.js"></script>
+    <script src="./src/Widget_IecEnum.js"></script>
+    <script src="./src/WidgetCollection.js"></script>
+    <script src="./src/LiteGraphPatch.js"></script>
+
+    <script src="./src/Node_Display_BOOL.js"></script>
+    <script src="./src/Node_Literal_BOOL.js"></script>
+    <script src="./src/NodePack_PlcBasicDisplay.js"></script>
+    <script src="./src/NodePack_PlcBasicLiterals.js"></script>
+    <script src="./src/NodePack_PlcBasic.js"></script>
+
+    <script src="./src/LitegraphToMobjectTransformations.js"></script>
+
+    <script src="./src/GraphMediator.js"></script>
+  </head>
+  <body>
+    <div id="main"></div>
+
+    <div class="litegraph" style="height: 100%; width: 100%">
+      <canvas id="mycanvas" height="600" width="800"></canvas>
+    </div>
+    <script>
+      var graph = new Graph();
+      var canvas = new GraphCanvas("#mycanvas", graph);
+
+      graph.install(NodePack_PlcBasic);
+
+      var plcApi = PlcApi(graph);
+
+      var graphMediator = new GraphMediator(graph, plcApi);
+
+      window.addEventListener("resize", function () {
+        canvas.resize();
+      });
+
+      function callPlcApi() {
+        plcApi.getStatus();
+      }
+    </script>
+
+    <button onclick="callPlcApi()">Get PLC Status</button>
+  </body>
+</html>
