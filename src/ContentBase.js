@@ -1,0 +1,3 @@
+class ContentBase {
+  constructor() {}
+}

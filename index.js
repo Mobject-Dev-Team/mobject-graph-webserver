@@ -10,7 +10,7 @@ const litegraphPath = path.join(__dirname, "litegraph.js");
 
 const port = 8000; // or any port you prefe
 app.use("/litegraph/css", express.static(path.join(litegraphPath, "css")));
-app.use("/litegraph/src", express.static(path.join(litegraphPath, "build")));
+app.use("/litegraph/src", express.static(path.join(litegraphPath, "src")));
 app.use("/src", express.static("./src"));
 app.use("/", express.static("./public"));
 
