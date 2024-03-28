@@ -1,9 +1,0 @@
-../src/LiteGraph.js
-../src/LGraph.js
-../src/LLink.js
-../src/LGraphNode.js
-../src/LGraphGroup.js
-../src/DragAndScale.js
-../src/LGraphCanvas.js
-../src/ContextMenu.js
-../src/Editor.js
