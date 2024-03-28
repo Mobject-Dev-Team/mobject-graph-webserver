@@ -1,0 +1,4 @@
+[submodule "litegraph.js"]
+	path = litegraph.js
+	url = https://github.com/daniel-lewis-ab/litegraph.js.git
+	branch = es6-class-branch
