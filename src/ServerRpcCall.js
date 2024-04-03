@@ -1,6 +1,6 @@
 async function callRPC(methodName, params) {
+  console.log("ServerRpcCall", methodName, params);
   try {
-    console.log("ted");
     const response = await fetch(`/rpc/${methodName}`, {
       method: "POST",
       headers: {

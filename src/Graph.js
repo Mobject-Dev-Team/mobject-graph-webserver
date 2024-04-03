@@ -1,18 +1,33 @@
 class Graph extends LGraph {
   #uuid = null;
+  #eventEmitter = new EventEmitter();
 
   constructor(o) {
     super(o);
     this.#uuid = this.#generateUuid();
   }
 
-  update(graphStatus) {
-    graphStatus.nodes.forEach((nodeStatus) => {
-      const node = this.getNodeById(nodeStatus.id);
-      if (node) {
-        node.update(nodeStatus);
-      }
-    });
+  on(eventName, listener) {
+    this.#eventEmitter.on(eventName, listener);
+  }
+
+  off(eventName, listener) {
+    this.#eventEmitter.off(eventName, listener);
+  }
+
+  get uuid() {
+    return this.#uuid;
+  }
+
+  update(status) {
+    if (status && Array.isArray(status.nodes)) {
+      status.nodes.forEach((status) => {
+        const node = this.getNodeById(status.id);
+        if (node) {
+          node.update(status);
+        }
+      });
+    }
   }
 
   #generateUuid() {
@@ -26,31 +41,37 @@ class Graph extends LGraph {
     );
   }
 
-  configurationHasChanged() {
-    this.#uuid = this.#generateUuid();
-    if (this.onConfigurationHasChanged) {
-      this.onConfigurationHasChanged();
-    }
-  }
-
-  onConfigure(data) {
-    this.configurationHasChanged();
-  }
-
   onSerialize(data) {
     data.uuid = this.#uuid;
     return data;
   }
 
+  #updateUuid() {
+    this.#uuid = this.#generateUuid();
+  }
+
+  #notifyChange(event, ...args) {
+    this.#eventEmitter.emit(event, ...args);
+    this.#eventEmitter.emit("configurationChanged");
+  }
+
+  onConfigure(data) {
+    this.#updateUuid();
+    this.#notifyChange("graphConfigure");
+  }
+
   onNodeAdded(node) {
-    this.configurationHasChanged();
+    this.#updateUuid();
+    this.#notifyChange("nodeAdded", node);
   }
 
   onNodeRemoved(node) {
-    this.configurationHasChanged();
+    this.#updateUuid();
+    this.#notifyChange("nodeRemoved", node);
   }
 
   connectionChange(node, link_info) {
-    this.configurationHasChanged();
+    this.#updateUuid();
+    this.#notifyChange("connectionChange", node, link_info);
   }
 }

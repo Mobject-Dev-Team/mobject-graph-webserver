@@ -26,6 +26,10 @@ app.post("/rpc/:methodName", async (req, res) => {
   console.log(methodName, req.body);
   const params = req.body;
 
+  if (typeof params !== "object" || params === null) {
+    return res.status(400).send("Invalid parameters");
+  }
+
   try {
     await client.connect();
     const result = await client.rpcCall(methodName, params);
