@@ -1,15 +1,15 @@
 // abstract
 class WidgetBase {
-  _visible = true;
   _value = null;
+  visible = true;
+  size = new Float32Array([0, 0]);
 
-  constructor() {
+  constructor(name, options) {
     if (new.target === WidgetBase) {
       throw new Error("Cannot instantiate an abstract class directly.");
     }
 
     this.size = new Float32Array([0, 0]);
-    this.visible = true;
   }
 
   // abstract method
@@ -41,7 +41,7 @@ class WidgetBase {
   }
 
   mouse(event, pos, node) {
-    if (!this._visible) {
+    if (!this.visible) {
       return true;
     }
 
@@ -53,10 +53,10 @@ class WidgetBase {
   }
 
   hide() {
-    this._visible = false;
+    this.visible = false;
   }
 
   show() {
-    this._visible = true;
+    this.visible = true;
   }
 }

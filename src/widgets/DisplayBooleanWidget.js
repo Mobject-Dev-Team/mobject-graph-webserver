@@ -1,6 +1,6 @@
 class DisplayBooleanWidget extends WidgetBase {
-  constructor() {
-    super();
+  constructor(name, options) {
+    super(name, options);
     this.value = false;
     this.labelFont = "12px Arial";
     this.valueFont = "12px Arial";

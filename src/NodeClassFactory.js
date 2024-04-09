@@ -44,7 +44,7 @@ class NodeClassFactory {
     const nodeClass = class extends Node {
       constructor() {
         super(name);
-        factory.handlerChain.handle(this, blueprint.node, factory);
+        factory.handlerChain.handle(this, blueprint.node);
       }
     };
 

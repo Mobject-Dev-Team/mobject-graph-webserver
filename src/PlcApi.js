@@ -1,6 +1,7 @@
 class PlcApi {
-  constructor(graph, factory) {
+  constructor(graph, graphFramework) {
     this.graph = graph;
+    this.graphFramework = graphFramework;
     this.transformer = new MobjectGraphTransformer();
 
     this.graph.on("configurationChanged", this.loadGraph.bind(this));
@@ -33,7 +34,7 @@ class PlcApi {
     callRPC("GetBlueprints")
       .then((result) => {
         console.log("RPC result:", result);
-        factory.registerNodesFromBlueprints(result.blueprints);
+        this.graphFramework.installNodeBlueprints(result.blueprints);
       })
       .catch((error) => console.error("RPC call failed:", error));
   }

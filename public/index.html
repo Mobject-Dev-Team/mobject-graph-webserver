@@ -74,10 +74,6 @@
     <script src="./src/NodeClassFactory.js"></script>
     <script src="./src/WidgetBase.js"></script>
     <script src="./src/widgets/DisplayBooleanWidget.js"></script>
-    <script src="./src/Parameter.js"></script>
-    <script src="./src/Parameters.js"></script>
-    <script src="./src/Content.js"></script>
-    <script src="./src/Contents.js"></script>
     <script src="./src/Node.js"></script>
     <script src="./src/Graph.js"></script>
     <script src="./src/GraphFramework.js"></script>
@@ -132,6 +128,7 @@
                   datatype: {
                     type: "BOOL",
                   },
+                  defaultValue: false,
                 },
               ],
             },
@@ -146,7 +143,7 @@
 
       var graph = graphFramework.create();
       var canvas = new LGraphCanvas("#mycanvas", graph);
-      var api = new PlcApi(graph);
+      var api = new PlcApi(graph, graphFramework);
 
       graph.on("configurationChanged", () => {
         console.log(graph.serialize());
