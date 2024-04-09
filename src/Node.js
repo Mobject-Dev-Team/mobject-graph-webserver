@@ -24,6 +24,6 @@ class Node extends LGraphNode {
 
   addParameter(parameter) {
     this.parameters.addByName(parameter.name, parameter);
-    content.registerWithParent(this);
+    parameter.registerWithParent(this);
   }
 }

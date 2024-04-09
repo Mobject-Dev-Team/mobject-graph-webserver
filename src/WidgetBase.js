@@ -7,25 +7,26 @@ class WidgetBase {
     if (new.target === WidgetBase) {
       throw new Error("Cannot instantiate an abstract class directly.");
     }
+
+    this.size = new Float32Array([0, 0]);
+    this.visible = true;
   }
 
   // abstract method
-  onDraw() {
+  onDraw(ctx, node, widget_width, y, H) {
     throw new Error("Abstract method 'onDraw' not implemented.");
   }
 
   // abstract method
-  onValueChanged() {
-    throw new Error("Abstract method 'onDraw' not implemented.");
+  onValueChanged(newValue, oldValue) {
+    throw new Error("Abstract method 'onValueChanged' not implemented.");
   }
 
   setValue(newValue) {
     if (newValue !== this._value) {
       const oldValue = this._value;
       this._value = newValue;
-      this.dispatchEvent(
-        new CustomEvent("valueChanged", { detail: { newValue, oldValue } })
-      );
+      this.onValueChanged(newValue, oldValue);
     }
   }
 
@@ -33,7 +34,6 @@ class WidgetBase {
     ctx.save();
 
     if (this.visible) {
-      ctx.textAlign = "left";
       this.onDraw(ctx, node, widget_width, y, H);
     }
 

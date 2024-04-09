@@ -70,8 +70,10 @@
     <script src="./src/PlcApi.js"></script>
     <script src="./src/EventEmitter.js"></script>
     <script src="./src/NodeBlueprintHandlers.js"></script>
-    <script src="./src/NodeFactoryManager.js"></script>
+    <script src="./src/Widgets.js"></script>
+    <script src="./src/NodeClassFactory.js"></script>
     <script src="./src/WidgetBase.js"></script>
+    <script src="./src/widgets/DisplayBooleanWidget.js"></script>
     <script src="./src/Parameter.js"></script>
     <script src="./src/Parameters.js"></script>
     <script src="./src/Content.js"></script>
@@ -88,61 +90,61 @@
       <canvas id="mycanvas" height="600" width="800"></canvas>
     </div>
     <script>
-      // let apiResponse = {
-      //   blueprints: [
-      //     {
-      //       path: "PlcBasic.Display.Bool",
-      //       node: {
-      //         alarms: ["Deserialization failed"],
-      //         inputPorts: [
-      //           {
-      //             name: "in",
-      //             datatype: {
-      //               type: "BOOL",
-      //             },
-      //           },
-      //         ],
-      //         contents: [
-      //           {
-      //             name: "display",
-      //             datatype: {
-      //               type: "BOOL",
-      //             },
-      //           },
-      //         ],
-      //       },
-      //     },
-      //     {
-      //       path: "PlcBasic.Literals.Bool",
-      //       node: {
-      //         alarms: ["Deserialization failed"],
-      //         outputPorts: [
-      //           {
-      //             name: "out",
-      //             datatype: {
-      //               type: "BOOL",
-      //             },
-      //           },
-      //         ],
-      //         parameters: [
-      //           {
-      //             name: "value",
-      //             datatype: {
-      //               type: "BOOL",
-      //             },
-      //           },
-      //         ],
-      //       },
-      //     },
-      //   ],
-      // };
+      let apiResponse = {
+        blueprints: [
+          {
+            path: "PlcBasic.Display.Bool",
+            node: {
+              alarms: ["Deserialization failed"],
+              inputPorts: [
+                {
+                  name: "in",
+                  datatype: {
+                    type: "BOOL",
+                  },
+                },
+              ],
+              contents: [
+                {
+                  name: "display",
+                  datatype: {
+                    type: "BOOL",
+                  },
+                },
+              ],
+            },
+          },
+          {
+            path: "PlcBasic.Literals.Bool",
+            node: {
+              alarms: ["Deserialization failed"],
+              outputPorts: [
+                {
+                  name: "out",
+                  datatype: {
+                    type: "BOOL",
+                  },
+                },
+              ],
+              parameters: [
+                {
+                  name: "value",
+                  datatype: {
+                    type: "BOOL",
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
 
-      var factory = new NodeFactoryManager(LiteGraph);
+      var graphFramework = new GraphFramework(LiteGraph);
+      // var factory = new NodeFactoryManager(graphFramework);
+      graphFramework.registerWidgetType(DisplayBooleanWidget, "BOOL");
+      graphFramework.installNodeBlueprints(apiResponse.blueprints);
 
-      // factory.registerNodesFromBlueprints(apiResponse.blueprints);
-      // factory.registerNodesFromBlueprints(apiResponse.blueprints);
-
-      var graph = new Graph();
+      var graph = graphFramework.create();
       var canvas = new LGraphCanvas("#mycanvas", graph);
       var api = new PlcApi(graph);
 

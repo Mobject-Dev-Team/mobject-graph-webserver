@@ -5,69 +5,84 @@ class NodeBlueprintHandlerChain {
 
   addHandler(handler) {
     this.handlers.push(handler);
-    this.updateChain();
   }
 
   removeHandler(handler) {
     const index = this.handlers.indexOf(handler);
     if (index > -1) {
       this.handlers.splice(index, 1);
-      this.updateChain();
     }
   }
 
-  updateChain() {
-    for (let i = 0; i < this.handlers.length - 1; i++) {
-      this.handlers[i].setNext(this.handlers[i + 1]);
-    }
-    if (this.handlers.length) {
-      this.handlers[this.handlers.length - 1].setNext(null);
-    }
-  }
-
-  handle(node, blueprint) {
-    if (this.handlers.length) {
-      this.handlers[0].handle(node, blueprint);
-    }
+  handle(node, blueprint, factory) {
+    let index = 0;
+    const next = () => {
+      if (index < this.handlers.length) {
+        const handler = this.handlers[index++];
+        handler.handle(node, blueprint, factory, next);
+      }
+    };
+    next();
   }
 }
 
 class NodeBlueprintHandler {
-  constructor() {
-    this.nextHandler = null;
-  }
-
-  setNext(handler) {
-    this.nextHandler = handler;
-    return handler;
-  }
-
-  handle(node, blueprint) {
-    if (this.nextHandler) {
-      this.nextHandler.handle(node, blueprint);
-    }
+  handle(node, blueprint, factory, next) {
+    next();
   }
 }
 
 class NodeInputPortBlueprintHandler extends NodeBlueprintHandler {
-  handle(node, blueprint) {
-    console.log(blueprint);
+  handle(node, blueprint, factory, next) {
     if (blueprint.inputPorts) {
       blueprint.inputPorts.forEach((input) =>
         node.addInput(input.name, input.datatype.type)
       );
     }
-    super.handle(node, blueprint);
+    next();
   }
 }
 
 class NodeOutputPortBlueprintHandler extends NodeBlueprintHandler {
-  handle(node, blueprint) {
+  handle(node, blueprint, factory, next) {
     if (blueprint.outputPorts) {
       blueprint.outputPorts.forEach((output) =>
         node.addOutput(output.name, output.datatype.type)
       );
     }
-    super.handle(node, blueprint);
+    next();
+  }
+}
+
+// find the widget blueprint handler which matches the type+identifier,
+// create the w
+class NodeParametersBlueprintHandler extends NodeBlueprintHandler {
+  constructor(widgets) {
+    super();
+    this.widgets = widgets;
+  }
+
+  handle(node, blueprint, factory, next) {
+    if (blueprint.parameters) {
+      blueprint.parameters.forEach((parameter) => {
+        const widgetClass = this.widgets.get(parameter.datatype.type);
+        const widget = new widgetClass(parameter.name, parameter);
+        node.addCustomWidget(widget);
+      });
+    }
+    next();
+  }
+}
+
+class NodeContentsBlueprintHandler extends NodeBlueprintHandler {
+  constructor(widgets) {
+    super();
+    this.widgets = widgets;
+  }
+  handle(node, blueprint, factory, next) {
+    if (blueprint.contents) {
+      blueprint.contents.forEach((content) => console.log(content));
+    }
+    next();
   }
 }
