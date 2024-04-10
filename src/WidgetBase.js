@@ -75,8 +75,6 @@ class DisplayWidgetBase extends WidgetBase {
         )?.value;
         if (value !== undefined) {
           this.update(value);
-        } else {
-          console.log("Content by this name not found or value is undefined.");
         }
       });
     }

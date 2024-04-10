@@ -1,6 +1,6 @@
 class BooleanDisplayWidget extends DisplayWidgetBase {
-  constructor(node, name, content) {
-    super(node, name, content);
+  constructor(name, content) {
+    super(name, content);
     this.value = false;
     this.labelFont = "12px Arial";
     this.valueFont = "12px Arial";

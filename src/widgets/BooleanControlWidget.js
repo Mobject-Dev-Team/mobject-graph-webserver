@@ -1,7 +1,7 @@
 class BooleanControlWidget extends ControlWidgetBase {
-  constructor(node, name, property, parameter, content) {
-    super(node, name, property, parameter, content);
-    this.value = false;
+  constructor(name, property, parameter, content) {
+    super(name, property, parameter, content);
+    this.value = parameter.defaultValue;
     this.labelFont = "12px Arial";
     this.valueFont = "12px Arial";
     this.margin = 20;

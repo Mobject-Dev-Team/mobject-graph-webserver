@@ -39,8 +39,8 @@ process.on("SIGINT", () => {
 
 app.post("/rpc/:methodName", async (req, res) => {
   const methodName = req.params.methodName;
-  console.log(methodName);
-  console.log(JSON.stringify(req.body));
+  // console.log(methodName);
+  // console.log(JSON.stringify(req.body));
   const params = req.body;
 
   if (typeof params !== "object" || params === null) {

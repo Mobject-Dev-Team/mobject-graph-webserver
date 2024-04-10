@@ -69,8 +69,8 @@ class NodeParametersBlueprintHandler extends NodeBlueprintHandler {
       blueprint.parameters.forEach((parameter) => {
         const name = parameter.name;
         const type = parameter.datatype.type;
-        const defaultValue = parameter.defaultValue;
-        const prop = node.addProperty(name, defaultValue, type, parameter);
+        const default_value = parameter.defaultValue;
+        const prop = node.addProperty(name, default_value, type, parameter);
 
         let content;
         if (contentNames.has(name)) {
