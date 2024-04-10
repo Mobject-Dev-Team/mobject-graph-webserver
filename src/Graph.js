@@ -74,4 +74,8 @@ class Graph extends LGraph {
     this.#updateUuid();
     this.#notifyChange("connectionChange", node, link_info);
   }
+
+  onNodePropertyChanged(node, name, value, prev_value) {
+    this.#notifyChange("propertyChange", node, name, value, prev_value);
+  }
 }

@@ -26,8 +26,8 @@ class GraphFramework {
 
     this.liteGraph = LiteGraph;
     this.widgets = new Widgets();
-    this.nodeClassFactory = new NodeClassFactory();
 
+    this.nodeClassFactory = new NodeClassFactory();
     this.nodeClassFactory.registerHandler(new NodeInputPortBlueprintHandler());
     this.nodeClassFactory.registerHandler(new NodeOutputPortBlueprintHandler());
     this.nodeClassFactory.registerHandler(
@@ -81,7 +81,7 @@ class GraphFramework {
       const nodeType =
         this.nodeClassFactory.getNodeTypeFromBlueprint(blueprint);
 
-      this.liteGraph.registerNodeType(nodeType, nodeClass);
+      this.registerNodeType(nodeType, nodeClass);
     }
   }
 
@@ -91,6 +91,44 @@ class GraphFramework {
 
   getVersion() {
     return this.liteGraph.VERSION;
+  }
+
+  /* this method was overridden as it was incorrectly overwriting the prototype
+   ** of our base class, as such this was made.  Also, some of the unused parts
+   ** were removed to simplfiy the call
+   */
+  registerNodeType(type, base_class) {
+    base_class.type = type;
+    const classname = base_class.name;
+
+    const pos = type.lastIndexOf("/");
+    base_class.category = type.substring(0, pos);
+
+    if (!base_class.title) {
+      base_class.title = classname;
+    }
+
+    if (base_class.supported_extensions) {
+      for (let i in base_class.supported_extensions) {
+        const ext = base_class.supported_extensions[i];
+        if (ext && ext.constructor === String) {
+          this.liteGraph.node_types_by_file_extension[ext.toLowerCase()] =
+            base_class;
+        }
+      }
+    }
+
+    const prev = this.liteGraph.registered_node_types[type];
+    this.liteGraph.registered_node_types[type] = base_class;
+    if (base_class.constructor.name) {
+      this.liteGraph.Nodes[classname] = base_class;
+    }
+    if (this.liteGraph.onNodeTypeRegistered) {
+      this.liteGraph.onNodeTypeRegistered(type, base_class);
+    }
+    if (prev && this.liteGraph.onNodeTypeReplaced) {
+      this.liteGraph.onNodeTypeReplaced(type, base_class, prev);
+    }
   }
 
   create() {

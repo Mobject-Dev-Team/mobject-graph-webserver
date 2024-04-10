@@ -73,7 +73,8 @@
     <script src="./src/Widgets.js"></script>
     <script src="./src/NodeClassFactory.js"></script>
     <script src="./src/WidgetBase.js"></script>
-    <script src="./src/widgets/DisplayBooleanWidget.js"></script>
+    <script src="./src/widgets/BooleanControlWidget.js"></script>
+    <script src="./src/widgets/BooleanDisplayWidget.js"></script>
     <script src="./src/Node.js"></script>
     <script src="./src/Graph.js"></script>
     <script src="./src/GraphFramework.js"></script>
@@ -136,10 +137,17 @@
         ],
       };
 
-      var graphFramework = new GraphFramework(LiteGraph);
+      var graphFramework = new GraphFramework();
       // var factory = new NodeFactoryManager(graphFramework);
-      graphFramework.registerWidgetType(DisplayBooleanWidget, "BOOL");
+      graphFramework.registerWidgetType(BooleanControlWidget, "BOOL");
+      graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
       graphFramework.installNodeBlueprints(apiResponse.blueprints);
+
+      // graphFramework.NodePreference({
+      //   type : 'Vision.DrawCircle',
+      //   parmeterName : 'Color',
+      //   preferedWidget : 'BooleanControlWidget'
+      // })
 
       var graph = graphFramework.create();
       var canvas = new LGraphCanvas("#mycanvas", graph);

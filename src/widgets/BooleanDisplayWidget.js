@@ -1,6 +1,6 @@
-class DisplayBooleanWidget extends WidgetBase {
-  constructor(name, options) {
-    super(name, options);
+class BooleanDisplayWidget extends DisplayWidgetBase {
+  constructor(node, name, content) {
+    super(node, name, content);
     this.value = false;
     this.labelFont = "12px Arial";
     this.valueFont = "12px Arial";
@@ -13,7 +13,7 @@ class DisplayBooleanWidget extends WidgetBase {
     this.secondary_value_color = "#555555";
   }
 
-  onValueChanged(newValue, oldValue) {
+  onDisplayValueChanged(newValue, oldValue) {
     this.value = newValue;
   }
 
@@ -55,16 +55,5 @@ class DisplayBooleanWidget extends WidgetBase {
     ctx.fillStyle = this.value ? this.value_color : this.secondary_text_color;
     ctx.textAlign = "right";
     ctx.fillText(this.value ? "true" : "false", drawWidth - 20, y + H * 0.7);
-  }
-}
-
-class NodeContentHandler extends NodeBlueprintHandler {
-  handle(node, blueprint) {
-    if (blueprint.outputPorts) {
-      blueprint.outputPorts.forEach((output) =>
-        node.addOutput(output.name, output.datatype.type)
-      );
-    }
-    super.handle(node, blueprint);
   }
 }

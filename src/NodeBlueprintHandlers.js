@@ -1,4 +1,4 @@
-class NodeBlueprintHandlerChain {
+class NodeBlueprintHandlers {
   constructor() {
     this.handlers = [];
   }
@@ -54,8 +54,6 @@ class NodeOutputPortBlueprintHandler extends NodeBlueprintHandler {
   }
 }
 
-// find the widget blueprint handler which matches the type+identifier,
-// create the w
 class NodeParametersBlueprintHandler extends NodeBlueprintHandler {
   constructor(widgets) {
     super();
@@ -63,17 +61,24 @@ class NodeParametersBlueprintHandler extends NodeBlueprintHandler {
   }
 
   handle(node, blueprint, next) {
+    const contentNames = new Set(
+      blueprint.contents ? blueprint.contents.map((c) => c.name) : []
+    );
+
     if (blueprint.parameters) {
       blueprint.parameters.forEach((parameter) => {
         const name = parameter.name;
         const type = parameter.datatype.type;
         const defaultValue = parameter.defaultValue;
+        const prop = node.addProperty(name, defaultValue, type, parameter);
 
-        const options = { datatype: parameter.datatype };
+        let content;
+        if (contentNames.has(name)) {
+          content = blueprint.contents.find((c) => c.name === name);
+        }
 
-        options.property = node.addProperty(name, defaultValue, type, options);
-        const widgetClass = this.widgets.get(type);
-        const widget = new widgetClass(name, options);
+        const widgetClasses = this.widgets.getControlsOfType(type);
+        const widget = new widgetClasses[0](name, prop, parameter, content);
 
         node.addCustomWidget(widget);
       });
@@ -88,8 +93,23 @@ class NodeContentsBlueprintHandler extends NodeBlueprintHandler {
     this.widgets = widgets;
   }
   handle(node, blueprint, next) {
+    const parameterNames = new Set(
+      blueprint.parameters
+        ? blueprint.parameters.map((parameter) => parameter.name)
+        : []
+    );
+
     if (blueprint.contents) {
-      blueprint.contents.forEach((content) => console.log(content));
+      blueprint.contents.forEach((content) => {
+        if (parameterNames.has(content.name)) return; // already processed by NodeParametersBlueprint
+        const name = content.name;
+        const type = content.datatype.type;
+
+        const widgetClasses = this.widgets.getDisplaysOfType(type);
+        const widget = new widgetClasses[0](name, content);
+
+        node.addCustomWidget(widget);
+      });
     }
     next();
   }

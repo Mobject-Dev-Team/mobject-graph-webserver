@@ -1,14 +1,14 @@
 class NodeClassFactory {
   constructor() {
-    this.handlerChain = new NodeBlueprintHandlerChain();
+    this.handlers = new NodeBlueprintHandlers();
   }
 
   registerHandler(handler) {
-    this.handlerChain.addHandler(handler);
+    this.handlers.addHandler(handler);
   }
 
   removeHandler(handler) {
-    this.handlerChain.removeHandler(handler);
+    this.handlers.removeHandler(handler);
   }
 
   validateBlueprint(blueprint) {
@@ -39,17 +39,17 @@ class NodeClassFactory {
     }
 
     const factory = this;
-    const name = factory.getNodeNameFromBlueprint(blueprint);
+    const nodeName = factory.getNodeNameFromBlueprint(blueprint);
 
     const nodeClass = class extends Node {
       constructor() {
-        super(name);
-        factory.handlerChain.handle(this, blueprint.node);
+        super(nodeName);
+        factory.handlers.handle(this, blueprint.node);
       }
     };
 
     Object.defineProperty(nodeClass, "name", {
-      value: name,
+      value: nodeName,
       writable: false,
     });
 
