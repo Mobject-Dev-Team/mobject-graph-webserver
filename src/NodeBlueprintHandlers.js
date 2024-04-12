@@ -70,7 +70,7 @@ class NodeParametersBlueprintHandler extends NodeBlueprintHandler {
         const name = parameter.name;
         const type = parameter.datatype.type;
         const default_value = parameter.defaultValue;
-        const prop = node.addProperty(name, default_value, type, parameter);
+        const prop = node.addProperty(name, default_value, type);
 
         let content;
         if (contentNames.has(name)) {
@@ -78,6 +78,9 @@ class NodeParametersBlueprintHandler extends NodeBlueprintHandler {
         }
 
         const widgetClasses = this.widgets.getControlsOfType(type);
+        if (!widgetClasses.length) {
+          throw new Error(`Unable to find widget of type :  ${type}`);
+        }
         const widget = new widgetClasses[0](name, prop, parameter, content);
 
         node.addCustomWidget(widget);
@@ -106,6 +109,9 @@ class NodeContentsBlueprintHandler extends NodeBlueprintHandler {
         const type = content.datatype.type;
 
         const widgetClasses = this.widgets.getDisplaysOfType(type);
+        if (!widgetClasses.length) {
+          throw new Error(`Unable to find widget of type :  ${type}`);
+        }
         const widget = new widgetClasses[0](name, content);
 
         node.addCustomWidget(widget);

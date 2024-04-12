@@ -11,6 +11,7 @@ class BooleanControlWidget extends ControlWidgetBase {
     this.secondary_text_color = "#999";
     this.value_color = "#ddd";
     this.secondary_value_color = "#555555";
+    this.label = name;
   }
 
   onDisplayValueChanged(newValue, oldValue) {

@@ -3,9 +3,11 @@ const browserSync = require("browser-sync");
 const path = require("path");
 const app = express();
 const { AdsRpcClient } = require("mobject-client");
+const ads = require("ads-client");
 
 const client = new AdsRpcClient("127.0.0.1.1.1", 851, "Main.server");
 // const client = new AdsRpcClient("192.168.4.1.1.1", 851, "Main.server");
+// const client = new AdsRpcClient("5.68.118.43.1.1", 851, "Main.server");
 
 const litegraphPath = path.join(__dirname, "litegraph.js");
 const port = 8000;
@@ -54,6 +56,11 @@ app.post("/rpc/:methodName", async (req, res) => {
     console.error(`Error calling RPC method ${methodName}:`, error);
     res.status(500).send(error);
   }
+});
+
+app.post("/assets/getAssets", async (req, res) => {
+  // check users assets directory,
+  // return node blueprints for asset collection.
 });
 
 browserSync.init({

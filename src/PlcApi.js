@@ -16,9 +16,11 @@ class PlcApi {
     );
 
     // console.log("Configuration Change");
-    // console.log(graphPayload);
+    console.log(graphPayload);
 
-    callRPC("CreateGraph", { graph: graphPayload })
+    callRPC("CreateGraph", {
+      graph: graphPayload,
+    })
       .then((result) => {
         // console.log("RPC result:", result);
         this.startStatusUpdates(); // Start the status updates when loadGraph is successful
@@ -63,7 +65,7 @@ class PlcApi {
   getBlueprints() {
     callRPC("GetBlueprints")
       .then((result) => {
-        // console.log("RPC result:", result);
+        console.log("RPC result:", result);
         this.graphFramework.installNodeBlueprints(result.blueprints);
       })
       .catch((error) => console.error("RPC call failed:", error));

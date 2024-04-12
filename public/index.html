@@ -75,6 +75,7 @@
     <script src="./src/WidgetBase.js"></script>
     <script src="./src/widgets/BooleanControlWidget.js"></script>
     <script src="./src/widgets/BooleanDisplayWidget.js"></script>
+    <script src="./src/widgets/NumericControlWidget.js"></script>
     <script src="./src/Node.js"></script>
     <script src="./src/Graph.js"></script>
     <script src="./src/GraphFramework.js"></script>
@@ -87,61 +88,63 @@
       <canvas id="mycanvas" height="600" width="800"></canvas>
     </div>
     <script>
-      // let apiResponse = {
-      //   blueprints: [
-      //     {
-      //       path: "PlcBasic.Display.Bool",
-      //       node: {
-      //         alarms: ["Deserialization failed"],
-      //         inputPorts: [
-      //           {
-      //             name: "in",
-      //             datatype: {
-      //               type: "BOOL",
-      //             },
-      //           },
-      //         ],
-      //         contents: [
-      //           {
-      //             name: "display",
-      //             datatype: {
-      //               type: "BOOL",
-      //             },
-      //           },
-      //         ],
-      //       },
-      //     },
-      //     {
-      //       path: "PlcBasic.Literals.Bool",
-      //       node: {
-      //         alarms: ["Deserialization failed"],
-      //         outputPorts: [
-      //           {
-      //             name: "out",
-      //             datatype: {
-      //               type: "BOOL",
-      //             },
-      //           },
-      //         ],
-      //         parameters: [
-      //           {
-      //             name: "value",
-      //             datatype: {
-      //               type: "BOOL",
-      //             },
-      //             defaultValue: false,
-      //           },
-      //         ],
-      //       },
-      //     },
-      //   ],
-      // };
+      let apiResponse = {
+        blueprints: [
+          {
+            path: "Test.Display",
+            node: {
+              alarms: ["Deserialization failed"],
+              inputPorts: [
+                {
+                  name: "in",
+                  datatype: {
+                    type: "BOOL",
+                  },
+                },
+              ],
+              contents: [
+                {
+                  name: "display",
+                  datatype: {
+                    type: "BOOL",
+                  },
+                },
+              ],
+            },
+          },
+          {
+            path: "Test.Control",
+            node: {
+              alarms: ["Deserialization failed"],
+              outputPorts: [
+                {
+                  name: "out",
+                  datatype: {
+                    type: "INT",
+                  },
+                },
+              ],
+              parameters: [
+                {
+                  name: "value",
+                  datatype: {
+                    type: "INT",
+                  },
+                  defaultValue: false,
+                },
+              ],
+            },
+          },
+        ],
+      };
 
       var graphFramework = new GraphFramework();
       // var factory = new NodeFactoryManager(graphFramework);
       graphFramework.registerWidgetType(BooleanControlWidget, "BOOL");
       graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
-      // graphFramework.installNodeBlueprints(apiResponse.blueprints);
+      graphFramework.registerWidgetType(NumericControlWidget, "INT");
+
+      graphFramework.installNodeBlueprints(apiResponse.blueprints);
 
       // graphFramework.NodePreference({
       //   type : 'Vision.DrawCircle',
@@ -152,6 +155,10 @@
       var graph = graphFramework.create();
       var canvas = new LGraphCanvas("#mycanvas", graph);
       var api = new PlcApi(graph, graphFramework);
+
+      const testNode = LiteGraph.createNode("Test/Display");
+      testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
+      canvas.graph.add(testNode);
 
       // graph.on("configurationChanged", () => {
       //   console.log(graph.serialize());

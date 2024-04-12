@@ -2,7 +2,7 @@ class WidgetBase {
   options = { property: "" }; // this is required for litegraph, but is unused.
   visible = true;
   size = new Float32Array([0, 0]);
-  parent = null;
+  parentNode = null;
 
   constructor(name) {
     if (new.target === WidgetBase) {
@@ -12,11 +12,11 @@ class WidgetBase {
   }
 
   registerWithParent(node) {
-    this.parent = node;
+    this.parentNode = node;
   }
 
   unregisterWithParent(node) {
-    this.parent = null;
+    this.parentNode = null;
   }
 
   onDraw(ctx, node, widget_width, y, H) {
@@ -65,11 +65,11 @@ class DisplayWidgetBase extends WidgetBase {
   displayValue = null;
   static capability = "display";
 
-  registerWithParent(node) {
-    super.registerWithParent(node);
+  registerWithParent(parentNode) {
+    super.registerWithParent(parentNode);
 
     if (this.content) {
-      node.on("nodeUpdated", (status) => {
+      parentNode.on("nodeUpdated", (status) => {
         const value = status.contents?.find(
           (content) => content.name === this.content.name
         )?.value;
@@ -80,9 +80,9 @@ class DisplayWidgetBase extends WidgetBase {
     }
   }
 
-  unregisterWithParent(node) {
-    super.registerWithParent(node);
-    node.off("nodeUpdated");
+  unregisterWithParent(parentNode) {
+    super.unregisterWithParent(parentNode);
+    parentNode.off("nodeUpdated");
   }
 
   update(newValue) {
@@ -90,8 +90,8 @@ class DisplayWidgetBase extends WidgetBase {
       const oldValue = this.displayValue;
       this.displayValue = newValue;
       this.onDisplayValueChanged(newValue, oldValue);
-      if (this.parent) {
-        this.parent.setDirtyCanvas(true, true);
+      if (this.parentNode) {
+        this.parentNode.setDirtyCanvas(true, true);
       }
     }
   }
@@ -114,8 +114,8 @@ class ControlWidgetBase extends DisplayWidgetBase {
   onDisplayValueChanged(newValue, oldValue) {}
 
   notifyChange(value) {
-    if (this.parent) {
-      this.parent.setProperty(this.property.name, value);
+    if (this.parentNode) {
+      this.parentNode.setProperty(this.property.name, value);
     }
   }
 }
