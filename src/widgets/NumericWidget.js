@@ -95,16 +95,77 @@ class NumericDisplayWidget extends DisplayWidgetBase {
   }
 }
 
+class NumberLimiter {
+  constructor(minimum, maximum, value, numberType = null) {
+    this.minimum = minimum;
+    this.maximum = maximum;
+    this.value = value;
+    this.numberType = numberType;
+
+    this.initLimits();
+    this.setValue(this.value);
+  }
+
+  // Check if a number needs to be adjusted to meet the odd/even requirement
+  shouldAdjust(number) {
+    if (this.numberType === "odd" && number % 2 === 0) {
+      return true; // Needs to be odd, but is even
+    }
+    if (this.numberType === "even" && number % 2 !== 0) {
+      return true; // Needs to be even, but is odd
+    }
+    return false; // No adjustment needed if numberType is null or doesn't match
+  }
+
+  // Adjusts the minimum or maximum limit to fit the odd or even requirements
+  adjustLimit(limit, adjustment) {
+    return this.shouldAdjust(limit) ? limit + adjustment : limit;
+  }
+
+  // Initialize limitMinimum and limitMaximum based on the current settings
+  initLimits() {
+    this.limitMinimum = this.adjustLimit(this.minimum, 1);
+    this.limitMaximum = this.adjustLimit(this.maximum, -1);
+  }
+
+  // Public method to set the value while ensuring it meets all constraints
+  setValue(newValue) {
+    if (this.shouldAdjust(newValue)) {
+      newValue += 1; // Adjust by 1 to make it meet the odd/even requirement
+    }
+    this.value = Math.min(
+      Math.max(newValue, this.limitMinimum),
+      this.limitMaximum
+    );
+  }
+
+  // Increment the value by a certain amount and apply all adjustments and constraints
+  incrementBy(amount) {
+    this.setValue(this.value + amount);
+  }
+
+  // Decrement the value by a certain amount and apply all adjustments and constraints
+  decrementBy(amount) {
+    this.setValue(this.value - amount);
+  }
+
+  // Get the current value
+  getValue() {
+    return this.value;
+  }
+}
+
 class NumericControlWidget extends ControlWidgetBase {
   constructor(name, property, parameter, content) {
     super(name, property, parameter, content);
     this.value = parameter.defaultValue;
     this.drawer = new NumericWidgetDrawer(name);
     this.step = 1;
-    this.onlyOdd = false;
-    this.onlyEven = false;
-    this.limitMinimum = 0;
-    this.limitMaximum = 1000;
+    this.isDragging = false;
+    this.startX = 0;
+    this.draggedValue = this.value; // Cached value during dragging
+    this.limitMinimum = -100;
+    this.limitMaximum = 200;
   }
 
   onDisplayValueChanged(newValue, oldValue) {
@@ -117,42 +178,54 @@ class NumericControlWidget extends ControlWidgetBase {
   }
 
   onMouse(event, pos, node) {
-    console.log(event);
     const x = pos[0];
     const widgetWidth = node.size[0];
     switch (event.type) {
-      case "mousemove":
-        // this.handleMouseMove(event.deltaX);
-        break;
       case "mousedown":
-      case "mouseup":
-        this.handleClick(x, widgetWidth, event);
+        this.isDragging = true;
+        this.startX = x;
+        this.draggedValue = this.value;
         break;
+      case "mousemove":
+        if (this.isDragging) {
+          this.handleMouseMove(x);
+        }
+        break;
+      case "mouseup":
+        if (this.isDragging) {
+          this.isDragging = false;
+          this.updateValueOnRelease();
+        }
+        break;
+    }
+    return true;
+  }
+
+  handleMouseMove(currentX) {
+    const deltaX = currentX - this.startX;
+    const stepCount = Math.floor(deltaX / 1);
+    if (stepCount !== 0) {
+      this.startX = currentX;
+      this.draggedValue += stepCount * this.step;
+      this.draggedValue = Math.min(
+        Math.max(this.draggedValue, this.limitMinimum),
+        this.limitMaximum
+      );
     }
   }
 
-  calculateDelta(x, widgetWidth) {
-    const LEFT_MARGIN = 40;
-    const RIGHT_MARGIN = widgetWidth - 40;
-    return x < LEFT_MARGIN ? -1 : x > RIGHT_MARGIN ? 1 : 0;
-  }
-
-  handleClick(x, widgetWidth, event) {
-    const delta = this.calculateDelta(x, widgetWidth);
-    if (event.type === "mouseup" && event.click_time < 200 && delta === 0) {
-      this.promptForValue(event);
-    } else {
-      let value = this.value + delta * this.step;
-      value = this.adjustForParity(value, delta);
-      this.updateValue(value);
+  updateValueOnRelease() {
+    if (this.draggedValue !== this.value) {
+      this.value = this.draggedValue;
+      this.notifyChange(this.value);
     }
   }
 
   promptForValue(event) {
-    console.log("prompt");
+    console.log("prompt will open here");
   }
 
   onDraw(ctx, node, widget_width, y, H) {
-    this.drawer.drawControl(ctx, node, widget_width, y, H, this.value);
+    this.drawer.drawControl(ctx, node, widget_width, y, H, this.draggedValue); // Use the dragged value for rendering
   }
 }

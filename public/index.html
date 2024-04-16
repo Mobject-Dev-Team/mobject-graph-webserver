@@ -66,6 +66,7 @@
     <script src="./litegraph/src/Editor.js"></script>
     <script src="defaults.js"></script>
 
+    <script src="./src/GraphCanvas.js"></script>
     <script src="./src/LitegraphToMobjectTransformations.js"></script>
     <script src="./src/PlcApi.js"></script>
     <script src="./src/EventEmitter.js"></script>
@@ -78,6 +79,7 @@
     <script src="./src/Node.js"></script>
     <script src="./src/Graph.js"></script>
     <script src="./src/GraphFramework.js"></script>
+
     <script src="./src/ServerRpcCall.js"></script>
   </head>
   <body>
@@ -138,21 +140,31 @@
       };
 
       var graphFramework = new GraphFramework();
-      // var factory = new NodeFactoryManager(graphFramework);
+
       graphFramework.registerWidgetType(BooleanControlWidget, "BOOL");
       graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
       graphFramework.registerWidgetType(NumericControlWidget, "INT");
       graphFramework.registerWidgetType(NumericDisplayWidget, "INT");
 
-      // graphFramework.installNodeBlueprints(apiResponse.blueprints);
+      graphFramework.installNodeBlueprints(apiResponse.blueprints);
 
       var graph = graphFramework.create();
-      var canvas = new LGraphCanvas("#mycanvas", graph);
+      var canvas = new GraphCanvas("#mycanvas", graph);
       var api = new PlcApi(graph, graphFramework);
 
-      // const testNode = LiteGraph.createNode("Plc Basic/ Int/Int Literal");
-      // testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
-      // canvas.graph.add(testNode);
+      const testNode = LiteGraph.createNode("Plc Basic/ Int/Int Literal");
+      testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
+      canvas.graph.add(testNode);
+
+      // Usage
+      const numLimiter = new NumberLimiter(10, 20, 15, "even"); // No numberType specified
+      console.log(numLimiter.getValue()); // Output the initial adjusted and constrained value
+
+      numLimiter.incrementBy(20);
+      console.log(numLimiter.getValue()); // Output after incrementing
+
+      numLimiter.decrementBy(30);
+      console.log(numLimiter.getValue()); // Output after decrementing
     </script>
     <button onclick="api.getBlueprints()">Get Blueprints</button>
   </body>

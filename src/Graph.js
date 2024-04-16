@@ -78,4 +78,24 @@ class Graph extends LGraph {
   onNodePropertyChanged(node, name, value, prev_value) {
     this.#notifyChange("propertyChange", node, name, value, prev_value);
   }
+
+  /* this method was overridden as we needed to support our own GraphCanvas.
+   * If we can remove our GraphCanvas Class then we can remove this override.
+   */
+  attachCanvas(graphcanvas) {
+    // this is the line that was changed, it now states != GraphCanvas
+    if (graphcanvas.constructor != GraphCanvas) {
+      throw "attachCanvas expects a LGraphCanvas instance";
+    }
+    if (graphcanvas.graph && graphcanvas.graph != this) {
+      graphcanvas.graph.detachCanvas(graphcanvas);
+    }
+
+    graphcanvas.graph = this;
+
+    if (!this.list_of_graphcanvas) {
+      this.list_of_graphcanvas = [];
+    }
+    this.list_of_graphcanvas.push(graphcanvas);
+  }
 }
