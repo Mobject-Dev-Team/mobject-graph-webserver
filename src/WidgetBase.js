@@ -1,13 +1,10 @@
 class WidgetBase {
-  options = { property: "" }; // this is required for litegraph, but is unused.
+  options = { property: "" }; // Placeholder for required structure in litegraph
   visible = true;
-  size = new Float32Array([0, 0]);
   parentNode = null;
 
   constructor(name) {
-    if (new.target === WidgetBase) {
-      throw new Error("Cannot instantiate an abstract class directly.");
-    }
+    this._ensureNotAbstract(WidgetBase, new.target);
     this.name = name;
   }
 
@@ -15,34 +12,21 @@ class WidgetBase {
     this.parentNode = node;
   }
 
-  unregisterWithParent(node) {
+  unregisterWithParent() {
     this.parentNode = null;
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    throw new Error("Abstract method 'onDraw' not implemented.");
-  }
-
-  draw(ctx, node, widget_width, y, H) {
+  draw(ctx, node, widgetWidth, y, H) {
     ctx.save();
-
     if (this.visible) {
-      this.onDraw(ctx, node, widget_width, y, H);
+      this.onDraw(ctx, node, widgetWidth, y, H);
     }
-
     ctx.restore();
   }
 
   mouse(event, pos, node) {
-    if (!this.visible) {
-      return true;
-    }
-
-    if (this.onMouse) {
-      this.onMouse(event, pos, node);
-    }
-
-    return true;
+    if (!this.visible) return false;
+    return this.onMouse?.(event, pos, node) ?? true;
   }
 
   hide() {
@@ -52,37 +36,58 @@ class WidgetBase {
   show() {
     this.visible = true;
   }
+
+  onDraw(ctx, node, widgetWidth, y, H) {
+    this._abstractMethodError("onDraw");
+  }
+
+  _ensureNotAbstract(cls, target) {
+    if (cls === target) {
+      throw new TypeError(
+        `${cls.name} is an abstract class and cannot be instantiated directly.`
+      );
+    }
+  }
+
+  _abstractMethodError(method) {
+    throw new Error(
+      `Abstract method '${method}' must be implemented by subclasses.`
+    );
+  }
 }
 
 class DisplayWidgetBase extends WidgetBase {
-  constructor(name, content) {
-    if (new.target === DisplayWidgetBase) {
-      throw new Error("Cannot instantiate an abstract class directly.");
-    }
-    super(name);
-    this.content = content;
-  }
   displayValue = null;
   static capability = "display";
 
+  constructor(name, content) {
+    super(name);
+    this._ensureNotAbstract(DisplayWidgetBase, new.target);
+    this.content = content;
+    this.boundHandleNodeUpdated = this.handleNodeUpdated.bind(this);
+  }
+
   registerWithParent(parentNode) {
     super.registerWithParent(parentNode);
-
     if (this.content) {
-      parentNode.on("nodeUpdated", (status) => {
-        const value = status.contents?.find(
-          (content) => content.name === this.content.name
-        )?.value;
-        if (value !== undefined) {
-          this.update(value);
-        }
-      });
+      parentNode.on("nodeUpdated", this.boundHandleNodeUpdated);
     }
   }
 
-  unregisterWithParent(parentNode) {
-    super.unregisterWithParent(parentNode);
-    parentNode.off("nodeUpdated");
+  unregisterWithParent() {
+    super.unregisterWithParent();
+    if (this.parentNode) {
+      this.parentNode.off("nodeUpdated", this.boundHandleNodeUpdated);
+    }
+  }
+
+  handleNodeUpdated(status) {
+    const value = status.contents?.find(
+      (content) => content.name === this.content.name
+    )?.value;
+    if (value !== undefined) {
+      this.update(value);
+    }
   }
 
   update(newValue) {
@@ -90,32 +95,25 @@ class DisplayWidgetBase extends WidgetBase {
       const oldValue = this.displayValue;
       this.displayValue = newValue;
       this.onDisplayValueChanged(newValue, oldValue);
-      if (this.parentNode) {
-        this.parentNode.setDirtyCanvas(true, true);
-      }
+      this.parentNode?.setDirtyCanvas(true, true);
     }
   }
 
   onDisplayValueChanged(newValue, oldValue) {
-    throw new Error("Abstract method 'onValueChanged' not implemented.");
+    this._abstractMethodError("onDisplayValueChanged");
   }
 }
 
 class ControlWidgetBase extends DisplayWidgetBase {
-  constructor(name, property, parameter, content) {
-    if (new.target === ControlWidgetBase) {
-      throw new Error("Cannot instantiate an abstract class directly.");
-    }
-    super(name);
-    this.property = property;
-  }
   static capability = "control";
 
-  onDisplayValueChanged(newValue, oldValue) {}
+  constructor(name, property, content) {
+    super(name, content);
+    this._ensureNotAbstract(ControlWidgetBase, new.target);
+    this.property = property;
+  }
 
   notifyChange(value) {
-    if (this.parentNode) {
-      this.parentNode.setProperty(this.property.name, value);
-    }
+    this.parentNode?.setProperty(this.property.name, value);
   }
 }

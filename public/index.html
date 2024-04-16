@@ -73,9 +73,8 @@
     <script src="./src/Widgets.js"></script>
     <script src="./src/NodeClassFactory.js"></script>
     <script src="./src/WidgetBase.js"></script>
-    <script src="./src/widgets/BooleanControlWidget.js"></script>
-    <script src="./src/widgets/BooleanDisplayWidget.js"></script>
-    <script src="./src/widgets/NumericControlWidget.js"></script>
+    <script src="./src/widgets/BooleanWidget.js"></script>
+    <script src="./src/widgets/NumericWidget.js"></script>
     <script src="./src/Node.js"></script>
     <script src="./src/Graph.js"></script>
     <script src="./src/GraphFramework.js"></script>
@@ -91,46 +90,46 @@
       let apiResponse = {
         blueprints: [
           {
-            path: "Test.Display",
+            path: "PlcBasic.Int.IntDisplay",
             node: {
               alarms: ["Deserialization failed"],
               inputPorts: [
                 {
                   name: "in",
-                  datatype: {
-                    type: "BOOL",
+                  type: {
+                    datatype: "INT",
                   },
                 },
               ],
               contents: [
                 {
                   name: "display",
-                  datatype: {
-                    type: "BOOL",
+                  type: {
+                    datatype: "INT",
                   },
                 },
               ],
             },
           },
           {
-            path: "Test.Control",
+            path: "PlcBasic.Int.IntLiteral",
             node: {
               alarms: ["Deserialization failed"],
               outputPorts: [
                 {
                   name: "out",
-                  datatype: {
-                    type: "INT",
+                  type: {
+                    datatype: "INT",
                   },
                 },
               ],
               parameters: [
                 {
                   name: "value",
-                  datatype: {
-                    type: "INT",
+                  type: {
+                    datatype: "INT",
                   },
-                  defaultValue: false,
+                  defaultValue: 0,
                 },
               ],
             },
@@ -143,28 +142,18 @@
       graphFramework.registerWidgetType(BooleanControlWidget, "BOOL");
       graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
       graphFramework.registerWidgetType(NumericControlWidget, "INT");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "INT");
 
-      graphFramework.installNodeBlueprints(apiResponse.blueprints);
-
-      // graphFramework.NodePreference({
-      //   type : 'Vision.DrawCircle',
-      //   parmeterName : 'Color',
-      //   preferedWidget : 'BooleanControlWidget'
-      // })
+      // graphFramework.installNodeBlueprints(apiResponse.blueprints);
 
       var graph = graphFramework.create();
       var canvas = new LGraphCanvas("#mycanvas", graph);
       var api = new PlcApi(graph, graphFramework);
 
-      const testNode = LiteGraph.createNode("Test/Display");
-      testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
-      canvas.graph.add(testNode);
-
-      // graph.on("configurationChanged", () => {
-      //   console.log(graph.serialize());
-      // });
+      // const testNode = LiteGraph.createNode("Plc Basic/ Int/Int Literal");
+      // testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
+      // canvas.graph.add(testNode);
     </script>
     <button onclick="api.getBlueprints()">Get Blueprints</button>
-    <!-- <button onclick="api.getStatus()">Get PLC Status</button> -->
   </body>
 </html>

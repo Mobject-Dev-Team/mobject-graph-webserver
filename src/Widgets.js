@@ -1,4 +1,8 @@
 class Widgets {
+  static WILDCARD = "*";
+  static DISPLAY = "display";
+  static CONTROL = "control";
+
   constructor() {
     this.widgets = new Map();
   }
@@ -7,60 +11,60 @@ class Widgets {
     return `${type}:${capability}${identifier ? `:${identifier}` : ""}`;
   }
 
-  add(Widget, type, identifier = undefined) {
-    const capability = Widget.capability;
+  add(widgetClass, type, identifier = undefined) {
+    const capability = widgetClass.capability;
     const key = this._createKey(type, capability, identifier);
     if (!this.widgets.has(key)) {
-      this.widgets.set(key, []);
+      this.widgets.set(key, new Set()); // Use Set to automatically handle unique insertion
     }
-    this.widgets.get(key).push(Widget);
+    this.widgets.get(key).add(widgetClass);
+  }
+
+  _getWidgetsByKey(key) {
+    return Array.from(this.widgets.get(key) || []);
   }
 
   get(type, capability, identifier = undefined) {
     const specificKey = this._createKey(type, capability, identifier);
-    const wildcardKey = this._createKey(type, capability, "*");
-    const specificWidgets = this.widgets.get(specificKey) || [];
-    const wildcardWidgets = this.widgets.get(wildcardKey) || [];
-    return [...new Set([...specificWidgets, ...wildcardWidgets])]; // Merge and remove duplicates
+    const wildcardKey = this._createKey(type, capability, Widgets.WILDCARD);
+    const specificWidgets = this._getWidgetsByKey(specificKey);
+    const wildcardWidgets = this._getWidgetsByKey(wildcardKey);
+    return Array.from(new Set([...specificWidgets, ...wildcardWidgets]));
   }
 
   getDisplaysOfType(type, identifier = undefined) {
-    return this.get(type, "display", identifier);
+    return this.get(type, Widgets.DISPLAY, identifier);
   }
 
   getControlsOfType(type, identifier = undefined) {
-    return this.get(type, "control", identifier);
+    return this.get(type, Widgets.CONTROL, identifier);
   }
 
   has(type, capability, identifier = undefined) {
     const specificKey = this._createKey(type, capability, identifier);
-    const wildcardKey = this._createKey(type, capability, "*");
+    const wildcardKey = this._createKey(type, capability, Widgets.WILDCARD);
     return this.widgets.has(specificKey) || this.widgets.has(wildcardKey);
   }
 
   remove(type, capability, identifier = undefined) {
     const specificKey = this._createKey(type, capability, identifier);
-    const wildcardKey = this._createKey(type, capability, "*");
-    if (this.widgets.has(specificKey)) {
-      this.widgets.delete(specificKey);
-    }
-    if (this.widgets.has(wildcardKey)) {
-      this.widgets.delete(wildcardKey);
-    }
+    const wildcardKey = this._createKey(type, capability, Widgets.WILDCARD);
+    this.widgets.delete(specificKey);
+    this.widgets.delete(wildcardKey);
   }
 
   [Symbol.iterator]() {
     const iterator = this.widgets.entries();
     return {
-      next() {
+      next: () => {
         const { done, value } = iterator.next();
         if (done) {
           return { done };
         }
-        const [key, widgets] = value;
+        const [key, widgetSet] = value;
         const [type, capability, identifier] = key.split(":");
         return {
-          value: [type, capability, identifier, widgets],
+          value: [type, capability, identifier, Array.from(widgetSet)],
           done: false,
         };
       },

@@ -4,7 +4,37 @@ class PlcApi {
     this.graphFramework = graphFramework;
     this.transformer = new MobjectGraphTransformer();
 
-    this.graph.on("configurationChanged", this.loadGraph.bind(this));
+    function debounceAndThrottle(func, wait) {
+      let timeout = null;
+      let lastArgs = null;
+
+      const later = () => {
+        if (lastArgs !== null) {
+          func(...lastArgs);
+          lastArgs = null;
+          timeout = setTimeout(later, wait); // Re-establish the timeout for trailing edge
+        } else {
+          timeout = null;
+        }
+      };
+
+      return function (...args) {
+        if (!timeout) {
+          func(...args); // Execute immediately on leading edge
+          timeout = setTimeout(later, wait);
+        } else {
+          lastArgs = args; // Store the most recent arguments for the trailing edge call
+        }
+      };
+    }
+
+    // Apply the custom debounce and throttle function to the event listener
+    this.graph.on(
+      "configurationChanged",
+      debounceAndThrottle(this.loadGraph.bind(this), 500)
+    );
+
+    // this.graph.on("configurationChanged", this.loadGraph.bind(this));
 
     this.statusInterval = null; // Store the interval ID for clearing later
   }
