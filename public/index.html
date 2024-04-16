@@ -155,16 +155,6 @@
       const testNode = LiteGraph.createNode("Plc Basic/ Int/Int Literal");
       testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
       canvas.graph.add(testNode);
-
-      // Usage
-      const numLimiter = new NumberLimiter(10, 20, 15, "even"); // No numberType specified
-      console.log(numLimiter.getValue()); // Output the initial adjusted and constrained value
-
-      numLimiter.incrementBy(20);
-      console.log(numLimiter.getValue()); // Output after incrementing
-
-      numLimiter.decrementBy(30);
-      console.log(numLimiter.getValue()); // Output after decrementing
     </script>
     <button onclick="api.getBlueprints()">Get Blueprints</button>
   </body>

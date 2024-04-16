@@ -95,11 +95,60 @@ class NumericDisplayWidget extends DisplayWidgetBase {
   }
 }
 
+class NumericParameter {
+  // Helper function to extract a metadata value or use a fallback from the parameter type
+  static getMetadataOrDefault(metadata, name, fallbackProperty) {
+    const item = metadata.find((m) => m.name === name);
+    return item ? item.value : fallbackProperty;
+  }
+
+  // Sets up the NumberLimiter using metadata and type constraints
+  static setupNumberLimiter(parameter) {
+    const metadata = parameter.metadata || [];
+    const type = parameter.type || {};
+
+    // Use the helper function to get max and min values, with type bounds as fallbacks
+    const max = NumericParameter.getMetadataOrDefault(
+      metadata,
+      "maximumValue",
+      type.upperBound || 0
+    );
+    const min = NumericParameter.getMetadataOrDefault(
+      metadata,
+      "minimumValue",
+      type.lowerBound || 0
+    );
+
+    // Extract boolean flags from metadata for odd/even constraints
+    const onlyOdd = !!NumericParameter.getMetadataOrDefault(
+      metadata,
+      "onlyOdd",
+      false
+    );
+    const onlyEven = !!NumericParameter.getMetadataOrDefault(
+      metadata,
+      "onlyEven",
+      false
+    );
+
+    // Determine the number constraint based on metadata flags
+    let constraint = null;
+    if (onlyOdd) {
+      constraint = "odd";
+    } else if (onlyEven) {
+      constraint = "even";
+    }
+
+    // Create and return the NumberLimiter with calculated properties
+    return new NumberLimiter(min, max, parameter.defaultValue, constraint);
+  }
+}
+
 class NumberLimiter {
-  constructor(minimum, maximum, value, numberType = null) {
+  constructor(minimum, maximum, initialValue, numberType = null) {
     this.minimum = minimum;
     this.maximum = maximum;
-    this.value = value;
+    this.value = initialValue;
     this.numberType = numberType;
 
     this.initLimits();
@@ -157,20 +206,22 @@ class NumberLimiter {
 
 class NumericControlWidget extends ControlWidgetBase {
   constructor(name, property, parameter, content) {
+    console.log(parameter);
     super(name, property, parameter, content);
-    this.value = parameter.defaultValue;
     this.drawer = new NumericWidgetDrawer(name);
-    this.step = 1;
+    this.step = 0.1; // Define the step size for value increment
     this.isDragging = false;
     this.startX = 0;
-    this.draggedValue = this.value; // Cached value during dragging
-    this.limitMinimum = -100;
-    this.limitMaximum = 200;
+
+    // Setup NumberLimiter with initial value and constraints
+    this.limiter = NumericParameter.setupNumberLimiter(parameter);
+    this.userValue = this.limiter.getValue(); // Cached value during dragging
   }
 
   onDisplayValueChanged(newValue, oldValue) {
-    this.value = newValue;
-    super.notifyChange(this.value);
+    this.limiter.setValue(newValue);
+    this.userValue = this.limiter.getValue();
+    super.notifyChange(this.userValue);
   }
 
   computeSize() {
@@ -180,45 +231,73 @@ class NumericControlWidget extends ControlWidgetBase {
   onMouse(event, pos, node) {
     const x = pos[0];
     const widgetWidth = node.size[0];
+
+    // Determine the multiplier
+    let multiplier = 1;
+    if (event.shiftKey && event.ctrlKey) {
+      multiplier = 100; // Both Shift and Ctrl pressed
+    } else if (event.shiftKey) {
+      multiplier = 10; // Only Shift pressed
+    }
+
     switch (event.type) {
       case "mousedown":
-        this.isDragging = true;
+        this.isDragging = false; // Assume not dragging initially
         this.startX = x;
-        this.draggedValue = this.value;
+        this.startValue = this.limiter.getValue(); // Save the initial value
+
+        // Check x position to decide action
+        if (x < 40) {
+          this.limiter.decrementBy(this.step * multiplier); // Decrement by the step size with multiplier
+          this.userValue = this.limiter.getValue();
+        } else if (x > widgetWidth - 40) {
+          this.limiter.incrementBy(this.step * multiplier); // Increment by the step size with multiplier
+          this.userValue = this.limiter.getValue();
+        }
         break;
       case "mousemove":
-        if (this.isDragging) {
-          this.handleMouseMove(x);
-        }
+        // Check if the mouse has moved significantly
+        this.isDragging = true;
+        this.handleMouseMove(x, multiplier); // Handle mouse move normally
+
         break;
       case "mouseup":
-        if (this.isDragging) {
-          this.isDragging = false;
-          this.updateValueOnRelease();
+        if (!this.isDragging && x > 40 && x < widgetWidth - 40) {
+          let widget = this;
+
+          event.target.data.prompt(
+            "Value",
+            this.userValue,
+            function (v) {
+              const value = Number(v);
+
+              widget.limiter.setValue(value);
+              widget.userValue = widget.limiter.getValue();
+              widget.updateValueOnRelease();
+            },
+            event
+          );
         }
+        this.isDragging = false;
+        this.updateValueOnRelease();
         break;
     }
     return true;
   }
 
-  handleMouseMove(currentX) {
+  handleMouseMove(currentX, multiplier) {
     const deltaX = currentX - this.startX;
-    const stepCount = Math.floor(deltaX / 1);
+    const stepCount = Math.floor(deltaX / 1); // Adjust delta to a step increment
     if (stepCount !== 0) {
       this.startX = currentX;
-      this.draggedValue += stepCount * this.step;
-      this.draggedValue = Math.min(
-        Math.max(this.draggedValue, this.limitMinimum),
-        this.limitMaximum
-      );
+      this.limiter.incrementBy(stepCount * this.step * multiplier); // Adjust the value based on the multiplier
+      this.userValue = this.limiter.getValue(); // Update dragged value from limiter
     }
   }
 
   updateValueOnRelease() {
-    if (this.draggedValue !== this.value) {
-      this.value = this.draggedValue;
-      this.notifyChange(this.value);
-    }
+    this.limiter.setValue(this.userValue); // Ensure the limiter is updated
+    this.notifyChange(this.limiter.getValue());
   }
 
   promptForValue(event) {
@@ -226,6 +305,6 @@ class NumericControlWidget extends ControlWidgetBase {
   }
 
   onDraw(ctx, node, widget_width, y, H) {
-    this.drawer.drawControl(ctx, node, widget_width, y, H, this.draggedValue); // Use the dragged value for rendering
+    this.drawer.drawControl(ctx, node, widget_width, y, H, this.userValue); // Use the dragged value for rendering
   }
 }
