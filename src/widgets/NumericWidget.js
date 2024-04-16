@@ -206,22 +206,23 @@ class NumberLimiter {
 
 class NumericControlWidget extends ControlWidgetBase {
   constructor(name, property, parameter, content) {
-    console.log(parameter);
     super(name, property, parameter, content);
-    this.drawer = new NumericWidgetDrawer(name);
-    this.step = 0.1; // Define the step size for value increment
-    this.isDragging = false;
-    this.startX = 0;
-
-    // Setup NumberLimiter with initial value and constraints
-    this.limiter = NumericParameter.setupNumberLimiter(parameter);
-    this.userValue = this.limiter.getValue(); // Cached value during dragging
+    this.setupWidget(name, parameter);
   }
 
-  onDisplayValueChanged(newValue, oldValue) {
+  setupWidget(name, parameter) {
+    this.drawer = new NumericWidgetDrawer(name);
+    this.step = 0.1;
+    this.isDragging = false;
+    this.startX = 0;
+    this.limiter = NumericParameter.setupNumberLimiter(parameter);
+    this.userValue = this.limiter.getValue();
+  }
+
+  onDisplayValueChanged(newValue) {
     this.limiter.setValue(newValue);
     this.userValue = this.limiter.getValue();
-    super.notifyChange(this.userValue);
+    this.notifyChange(this.userValue);
   }
 
   computeSize() {
@@ -231,80 +232,93 @@ class NumericControlWidget extends ControlWidgetBase {
   onMouse(event, pos, node) {
     const x = pos[0];
     const widgetWidth = node.size[0];
+    const multiplier = this.getMultiplier(event);
 
-    // Determine the multiplier
-    let multiplier = 1;
+    if (event.type === "mousedown") {
+      this.handleMouseDown(x, widgetWidth, multiplier);
+    } else if (event.type === "mousemove") {
+      this.handleMouseMove(x, multiplier);
+    } else if (event.type === "mouseup") {
+      this.handleMouseUp(x, widgetWidth, event);
+    }
+  }
+
+  getMultiplier(event) {
     if (event.shiftKey && event.ctrlKey) {
-      multiplier = 100; // Both Shift and Ctrl pressed
+      return 100;
     } else if (event.shiftKey) {
-      multiplier = 10; // Only Shift pressed
+      return 10;
+    } else {
+      return 1;
     }
+  }
 
-    switch (event.type) {
-      case "mousedown":
-        this.isDragging = false; // Assume not dragging initially
-        this.startX = x;
-        this.startValue = this.limiter.getValue(); // Save the initial value
-
-        // Check x position to decide action
-        if (x < 40) {
-          this.limiter.decrementBy(this.step * multiplier); // Decrement by the step size with multiplier
-          this.userValue = this.limiter.getValue();
-        } else if (x > widgetWidth - 40) {
-          this.limiter.incrementBy(this.step * multiplier); // Increment by the step size with multiplier
-          this.userValue = this.limiter.getValue();
-        }
-        break;
-      case "mousemove":
-        // Check if the mouse has moved significantly
-        this.isDragging = true;
-        this.handleMouseMove(x, multiplier); // Handle mouse move normally
-
-        break;
-      case "mouseup":
-        if (!this.isDragging && x > 40 && x < widgetWidth - 40) {
-          let widget = this;
-
-          event.target.data.prompt(
-            "Value",
-            this.userValue,
-            function (v) {
-              const value = Number(v);
-
-              widget.limiter.setValue(value);
-              widget.userValue = widget.limiter.getValue();
-              widget.updateValueOnRelease();
-            },
-            event
-          );
-        }
-        this.isDragging = false;
-        this.updateValueOnRelease();
-        break;
-    }
-    return true;
+  handleMouseDown(x, widgetWidth, multiplier) {
+    this.isDragging = false;
+    this.startX = x;
+    this.adjustValueByPosition(x, widgetWidth, multiplier);
   }
 
   handleMouseMove(currentX, multiplier) {
-    const deltaX = currentX - this.startX;
-    const stepCount = Math.floor(deltaX / 1); // Adjust delta to a step increment
-    if (stepCount !== 0) {
+    if (Math.abs(currentX - this.startX) > 1) {
+      const stepCount = Math.floor(currentX - this.startX);
+      this.limiter.incrementBy(stepCount * this.step * multiplier);
+      this.userValue = this.limiter.getValue();
       this.startX = currentX;
-      this.limiter.incrementBy(stepCount * this.step * multiplier); // Adjust the value based on the multiplier
-      this.userValue = this.limiter.getValue(); // Update dragged value from limiter
+      this.isDragging = true;
     }
   }
 
-  updateValueOnRelease() {
-    this.limiter.setValue(this.userValue); // Ensure the limiter is updated
-    this.notifyChange(this.limiter.getValue());
+  handleMouseUp(x, widgetWidth, event) {
+    if (!this.isDragging && this.isInsideInputArea(x, widgetWidth)) {
+      this.promptForValue(event);
+    }
+    this.isDragging = false;
+    this.updateValueOnRelease();
+  }
+
+  isInsideInputArea(x, widgetWidth) {
+    return x > 40 && x < widgetWidth - 40;
+  }
+
+  adjustValueByPosition(x, widgetWidth, multiplier) {
+    if (x < 40) {
+      // down arrow
+      this.limiter.decrementBy(this.step * multiplier);
+    } else if (x > widgetWidth - 40) {
+      // up arrow
+      this.limiter.incrementBy(this.step * multiplier);
+    }
+    this.userValue = this.limiter.getValue();
   }
 
   promptForValue(event) {
-    console.log("prompt will open here");
+    let widget = this;
+
+    event.target.data.prompt(
+      "Value",
+      this.userValue.toString(),
+      function (inputValue) {
+        const value = Number(inputValue);
+        if (!isNaN(value)) {
+          widget.limiter.setValue(value);
+          widget.userValue = widget.limiter.getValue();
+          widget.updateValueOnRelease();
+        } else {
+          console.error("Invalid input: Input is not a number.");
+        }
+      },
+      event
+    );
+  }
+
+  updateValueOnRelease() {
+    this.limiter.setValue(this.userValue);
+    this.userValue = this.limiter.getValue();
+    this.notifyChange(this.userValue);
   }
 
   onDraw(ctx, node, widget_width, y, H) {
-    this.drawer.drawControl(ctx, node, widget_width, y, H, this.userValue); // Use the dragged value for rendering
+    this.drawer.drawControl(ctx, node, widget_width, y, H, this.userValue);
   }
 }
