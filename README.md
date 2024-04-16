@@ -38,10 +38,16 @@ To use this project you will need to run v0.1.1 of mobject-graph-test-project. A
 To clone
 
 ```
-git clone --recurse-submodules https://github.com/Mobject-Dev-Team/mobject-graph-webserver.git
+git clone https://github.com/Mobject-Dev-Team/mobject-graph-webserver.git
 ```
 
-First install
+Then get the litegraph repo using,
+
+```
+npm run get-litegraph
+```
+
+Install dependency,
 
 ```
 npm install

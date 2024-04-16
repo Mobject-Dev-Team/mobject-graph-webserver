@@ -3,12 +3,9 @@ const browserSync = require("browser-sync");
 const path = require("path");
 const app = express();
 const { AdsRpcClient } = require("mobject-client");
-const ads = require("ads-client");
+require("dotenv").config();
 
-const client = new AdsRpcClient("127.0.0.1.1.1", 851, "Main.server");
-// const client = new AdsRpcClient("192.168.4.1.1.1", 851, "Main.server");
-// const client = new AdsRpcClient("5.68.118.43.1.1", 851, "Main.server");
-
+const client = new AdsRpcClient(process.env.NET_ID, 851, "Main.server");
 const litegraphPath = path.join(__dirname, "litegraph.js");
 const port = 8000;
 
