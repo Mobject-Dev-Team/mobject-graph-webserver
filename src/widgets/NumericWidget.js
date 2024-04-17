@@ -9,7 +9,7 @@ class NumericWidgetDrawer {
     this.outlineColor = "#666";
     this.backgroundColor = "#222";
     this.arrowColor = "#ddd";
-    this.precision = 1;
+    this.precision = 0;
   }
 
   drawControl(ctx, node, widget_width, y, H, value) {
@@ -105,18 +105,18 @@ class NumericParameter {
   // Sets up the NumberLimiter using metadata and type constraints
   static setupNumberLimiter(parameter) {
     const metadata = parameter.metadata || [];
-    const type = parameter.type || {};
+    const datatype = parameter.datatype || {};
 
     // Use the helper function to get max and min values, with type bounds as fallbacks
     const max = NumericParameter.getMetadataOrDefault(
       metadata,
       "maximumValue",
-      type.upperBound || 0
+      datatype.upperBound || 0
     );
     const min = NumericParameter.getMetadataOrDefault(
       metadata,
       "minimumValue",
-      type.lowerBound || 0
+      datatype.lowerBound || 0
     );
 
     // Extract boolean flags from metadata for odd/even constraints
@@ -206,13 +206,14 @@ class NumberLimiter {
 
 class NumericControlWidget extends ControlWidgetBase {
   constructor(name, property, parameter, content) {
+    console.log(parameter);
     super(name, property, parameter, content);
     this.setupWidget(name, parameter);
   }
 
   setupWidget(name, parameter) {
     this.drawer = new NumericWidgetDrawer(name);
-    this.step = 0.1;
+    this.step = 1;
     this.isDragging = false;
     this.startX = 0;
     this.limiter = NumericParameter.setupNumberLimiter(parameter);
