@@ -36,7 +36,7 @@ class NodeInputPortBlueprintHandler extends NodeBlueprintHandler {
   handle(node, blueprint, next) {
     if (blueprint.inputPorts) {
       blueprint.inputPorts.forEach((input) =>
-        node.addInput(input.name, input.datatype.name)
+        node.addInput(input.name, input.datatype.typeName)
       );
     }
     next();
@@ -47,7 +47,7 @@ class NodeOutputPortBlueprintHandler extends NodeBlueprintHandler {
   handle(node, blueprint, next) {
     if (blueprint.outputPorts) {
       blueprint.outputPorts.forEach((output) =>
-        node.addOutput(output.name, output.datatype.name)
+        node.addOutput(output.name, output.datatype.typeName)
       );
     }
     next();
@@ -68,7 +68,7 @@ class NodeParametersBlueprintHandler extends NodeBlueprintHandler {
     if (blueprint.parameters) {
       blueprint.parameters.forEach((parameter) => {
         const name = parameter.name;
-        const type = parameter.datatype.name;
+        const type = parameter.datatype.typeName;
         const default_value = parameter.defaultValue;
         const prop = node.addProperty(name, default_value, type);
 
@@ -106,7 +106,7 @@ class NodeContentsBlueprintHandler extends NodeBlueprintHandler {
       blueprint.contents.forEach((content) => {
         if (parameterNames.has(content.name)) return; // already processed by NodeParametersBlueprint
         const name = content.name;
-        const type = content.datatype.name;
+        const type = content.datatype.typeName;
 
         const widgetClasses = this.widgets.getDisplaysOfType(type);
         if (!widgetClasses.length) {

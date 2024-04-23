@@ -111,12 +111,18 @@ class NumericParameter {
     const max = NumericParameter.getMetadataOrDefault(
       metadata,
       "maximumValue",
-      datatype.upperBound || 0
+      datatype.maxValue || 0
     );
     const min = NumericParameter.getMetadataOrDefault(
       metadata,
       "minimumValue",
-      datatype.lowerBound || 0
+      datatype.minValue || 0
+    );
+
+    const precision = NumericParameter.getMetadataOrDefault(
+      metadata,
+      "precision",
+      datatype.isFloat ? 2 : 0
     );
 
     // Extract boolean flags from metadata for odd/even constraints
@@ -140,16 +146,23 @@ class NumericParameter {
     }
 
     // Create and return the NumberLimiter with calculated properties
-    return new NumberLimiter(min, max, parameter.defaultValue, constraint);
+    return new NumberLimiter(
+      min,
+      max,
+      parameter.defaultValue,
+      constraint,
+      precision
+    );
   }
 }
 
 class NumberLimiter {
-  constructor(minimum, maximum, initialValue, numberType = null) {
+  constructor(minimum, maximum, initialValue, numberType = null, precision) {
     this.minimum = minimum;
     this.maximum = maximum;
     this.value = initialValue;
     this.numberType = numberType;
+    this.precision = precision;
 
     this.initLimits();
     this.setValue(this.value);
@@ -182,6 +195,8 @@ class NumberLimiter {
     if (this.shouldAdjust(newValue)) {
       newValue += 1; // Adjust by 1 to make it meet the odd/even requirement
     }
+
+    newValue = parseFloat(newValue.toFixed(this.precision)); // Apply precision
     this.value = Math.min(
       Math.max(newValue, this.limitMinimum),
       this.limitMaximum

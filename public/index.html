@@ -145,6 +145,8 @@
       graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
       graphFramework.registerWidgetType(NumericControlWidget, "INT");
       graphFramework.registerWidgetType(NumericDisplayWidget, "INT");
+      graphFramework.registerWidgetType(NumericControlWidget, "REAL");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "REAL");
 
       graphFramework.installNodeBlueprints(apiResponse.blueprints);
 
@@ -152,9 +154,9 @@
       var canvas = new GraphCanvas("#mycanvas", graph);
       var api = new PlcApi(graph, graphFramework);
 
-      const testNode = LiteGraph.createNode("Plc Basic/ Int/Int Literal");
-      testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
-      canvas.graph.add(testNode);
+      // const testNode = LiteGraph.createNode("Plc Basic/ Int/Int Literal");
+      // testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
+      // canvas.graph.add(testNode);
     </script>
     <button onclick="api.getBlueprints()">Get Blueprints</button>
   </body>
