@@ -89,56 +89,6 @@
       <canvas id="mycanvas" height="600" width="800"></canvas>
     </div>
     <script>
-      let apiResponse = {
-        blueprints: [
-          {
-            path: "PlcBasic.Int.IntDisplay",
-            node: {
-              alarms: ["Deserialization failed"],
-              inputPorts: [
-                {
-                  name: "in",
-                  datatype: {
-                    name: "INT",
-                  },
-                },
-              ],
-              contents: [
-                {
-                  name: "display",
-                  datatype: {
-                    name: "INT",
-                  },
-                },
-              ],
-            },
-          },
-          {
-            path: "PlcBasic.Int.IntLiteral",
-            node: {
-              alarms: ["Deserialization failed"],
-              outputPorts: [
-                {
-                  name: "out",
-                  datatype: {
-                    name: "INT",
-                  },
-                },
-              ],
-              parameters: [
-                {
-                  name: "value",
-                  datatype: {
-                    name: "INT",
-                  },
-                  defaultValue: 0,
-                },
-              ],
-            },
-          },
-        ],
-      };
-
       var graphFramework = new GraphFramework();
 
       graphFramework.registerWidgetType(BooleanControlWidget, "BOOL");
@@ -148,15 +98,9 @@
       graphFramework.registerWidgetType(NumericControlWidget, "REAL");
       graphFramework.registerWidgetType(NumericDisplayWidget, "REAL");
 
-      graphFramework.installNodeBlueprints(apiResponse.blueprints);
-
       var graph = graphFramework.create();
       var canvas = new GraphCanvas("#mycanvas", graph);
       var api = new PlcApi(graph, graphFramework);
-
-      // const testNode = LiteGraph.createNode("Plc Basic/ Int/Int Literal");
-      // testNode.pos = LiteGraph.DEFAULT_POSITION.concat();
-      // canvas.graph.add(testNode);
     </script>
     <button onclick="api.getBlueprints()">Get Blueprints</button>
   </body>
