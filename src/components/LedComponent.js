@@ -48,7 +48,7 @@ class LedComponent {
     ctx.textAlign = "right";
     ctx.fillText(
       this._isActive ? "true" : "false",
-      drawWidth - 20,
+      drawWidth + this.margin - 20,
       y + H * 0.7
     );
   }
@@ -60,10 +60,10 @@ class LedComponent {
 
     const glowRadius = H * 0.6;
     const glowGradient = ctx.createRadialGradient(
-      drawWidth + 4,
+      drawWidth + this.margin - 5,
       y + H * 0.5,
       0,
-      drawWidth + 4,
+      drawWidth + this.margin - 5,
       y + H * 0.5,
       glowRadius
     );
@@ -73,13 +73,19 @@ class LedComponent {
     if (this._isActive) {
       ctx.fillStyle = glowGradient;
       ctx.beginPath();
-      ctx.arc(drawWidth + 4, y + H * 0.5, glowRadius, 0, Math.PI * 2);
+      ctx.arc(
+        drawWidth + this.margin - 5,
+        y + H * 0.5,
+        glowRadius,
+        0,
+        Math.PI * 2
+      );
       ctx.fill();
     }
 
     ctx.fillStyle = ledColor;
     ctx.beginPath();
-    ctx.arc(drawWidth + 4, y + H * 0.5, H * 0.35, 0, Math.PI * 2);
+    ctx.arc(drawWidth + this.margin - 5, y + H * 0.5, H * 0.35, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.strokeStyle = "#222";

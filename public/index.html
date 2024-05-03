@@ -9,6 +9,8 @@
       href="./litegraph/css/litegraph.css"
     />
 
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
     <!-- Core -->
@@ -42,6 +44,7 @@
     <script src="./src/components/SingleLineTextDisplayComponent.js"></script>
     <script src="./src/components/NumericInputComponent.js"></script>
     <script src="./src/components/NumericDisplayComponent.js"></script>
+    <script src="./src/components/ComboboxComponent.js"></script>
     <script src="./src/widgets/BooleanWidget.js"></script>
     <script src="./src/widgets/NumericWidget.js"></script>
     <script src="./src/widgets/StringWidget.js"></script>
@@ -65,8 +68,22 @@
       graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
       graphFramework.registerWidgetType(NumericControlWidget, "INT");
       graphFramework.registerWidgetType(NumericDisplayWidget, "INT");
+      graphFramework.registerWidgetType(NumericControlWidget, "DINT");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "DINT");
+      graphFramework.registerWidgetType(NumericControlWidget, "SINT");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "SINT");
+      graphFramework.registerWidgetType(NumericControlWidget, "USINT");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "USINT");
+      graphFramework.registerWidgetType(NumericControlWidget, "UINT");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "UINT");
+      graphFramework.registerWidgetType(NumericControlWidget, "UDINT");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "UDINT");
+      graphFramework.registerWidgetType(NumericControlWidget, "ULINT");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "ULINT");
       graphFramework.registerWidgetType(NumericControlWidget, "REAL");
       graphFramework.registerWidgetType(NumericDisplayWidget, "REAL");
+      graphFramework.registerWidgetType(NumericControlWidget, "LREAL");
+      graphFramework.registerWidgetType(NumericDisplayWidget, "LREAL");
       graphFramework.registerWidgetType(StringControlWidget, "STRING");
       graphFramework.registerWidgetType(StringDisplayWidget, "STRING");
       graphFramework.registerWidgetType(EnumControlWidget, "ENUM");

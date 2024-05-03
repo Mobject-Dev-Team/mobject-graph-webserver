@@ -45,6 +45,6 @@ class SingleLineTextDisplayComponent {
     ctx.font = this.valueFont;
     ctx.fillStyle = this.valueTextColor;
     ctx.textAlign = "right";
-    ctx.fillText(this._text, drawWidth + this.margin - 5, y + H * 0.7);
+    ctx.fillText(this._text, drawWidth + this.margin, y + H * 0.7);
   }
 }

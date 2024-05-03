@@ -188,7 +188,7 @@ class NumericInputComponent {
     ctx.textAlign = "right";
     ctx.fillText(
       Number(this._value).toFixed(this.precision),
-      drawWidth - 20,
+      drawWidth - 5,
       y + H * 0.7
     );
   }

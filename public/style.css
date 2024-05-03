@@ -26,3 +26,26 @@ a {
 .link-button-rounded:hover {
   background-color: grey;
 }
+
+.litegraph .graphdialog {
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  padding: 4px 10px;
+  position: fixed;
+  color: white;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.litegraph .graphdialog button {
+  padding: 4px 18px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.graphdialog button {
+  margin-top: 3px;
+  vertical-align: top;
+  background-color: #999;
+  border: 0;
+}
