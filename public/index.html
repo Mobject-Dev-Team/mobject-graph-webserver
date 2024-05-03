@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>LiteGraph</title>
+    <title>GraphFramework</title>
 
     <link
       rel="stylesheet"
@@ -9,49 +9,7 @@
       href="./litegraph/css/litegraph.css"
     />
 
-    <link rel="stylesheet" type="text/css" href="./json-viewer.css" />
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <!-- <script src="./iec61131-3.js"></script>
-    <script src="./UuidGen.js"></script>
-    <script src="./Base64.js"></script>
-    <script src="./json-viewer.js"></script> -->
-
-    <!-- <script src="./litegraph/src/litegraph.js"></script> -->
-    <!-- <script src="./src/mobjectClientConnection.js"></script>
-    <script src="./src/Graph.js"></script>
-    <script src="./src/AbilityBase.js"></script>
-    <script src="./src/DefaultInputPortFactory.js"></script>
-    <script src="./src/DefaultNodeClassFactory.js"></script>
-    <script src="./src/GraphCanvas.js"></script>
-    <script src="./src/HtmlDialogBase.js"></script>
-    <script src="./src/GraphRouterMemoryAbility.js"></script>
-    <script src="./src/NodeProtectionAbility.js"></script>
-    <script src="./src/NodeTriggerAbility.js"></script>
-
-    <script src="./src/NodeBase.js"></script>
-    <script src="./src/PlcApi.js"></script>
-    <script src="./src/WidgetBase.js"></script>
-    <script src="./src/Widget_Blank.js"></script>
-    <script src="./src/Widget_Bool.js"></script>
-    <script src="./src/Widget_Combo.js"></script>
-    <script src="./src/Widget_Number.js"></script>
-    <script src="./src/Widget_Separator.js"></script>
-    <script src="./src/Widget_Slider.js"></script>
-    <script src="./src/Widget_String.js"></script>
-    <script src="./src/Widget_IecAnyFloat.js"></script>
-    <script src="./src/Widget_IecAnyInteger.js"></script>
-    <script src="./src/Widget_IecEnum.js"></script>
-    <script src="./src/WidgetCollection.js"></script>
-    <script src="./src/LiteGraphPatch.js"></script>
-
-    <script src="./src/Node_Display_BOOL.js"></script>
-    <script src="./src/Node_Literal_BOOL.js"></script>
-    <script src="./src/NodePack_PlcBasicDisplay.js"></script>
-    <script src="./src/NodePack_PlcBasicLiterals.js"></script>
-    <script src="./src/NodePack_PlcBasic.js"></script>
-
-    <script src="./src/LitegraphToMobjectTransformations.js"></script> -->
 
     <!-- Core -->
     <script src="./litegraph/src/LiteGraph.js"></script>
@@ -74,8 +32,20 @@
     <script src="./src/Widgets.js"></script>
     <script src="./src/NodeClassFactory.js"></script>
     <script src="./src/WidgetBase.js"></script>
+    <script src="./src/utils/NumberLimiter.js"></script>
+    <script src="./src/utils/ColorGenerator.js"></script>
+    <script src="./src/content/NumericContent.js"></script>
+    <script src="./src/parameter/NumericParameter.js"></script>
+    <script src="./src/components/LedComponent.js"></script>
+    <script src="./src/components/CheckboxComponent.js"></script>
+    <script src="./src/components/SingleLineTextInputComponent.js"></script>
+    <script src="./src/components/SingleLineTextDisplayComponent.js"></script>
+    <script src="./src/components/NumericInputComponent.js"></script>
+    <script src="./src/components/NumericDisplayComponent.js"></script>
     <script src="./src/widgets/BooleanWidget.js"></script>
     <script src="./src/widgets/NumericWidget.js"></script>
+    <script src="./src/widgets/StringWidget.js"></script>
+    <script src="./src/widgets/EnumWidget.js"></script>
     <script src="./src/Node.js"></script>
     <script src="./src/Graph.js"></script>
     <script src="./src/GraphFramework.js"></script>
@@ -97,6 +67,10 @@
       graphFramework.registerWidgetType(NumericDisplayWidget, "INT");
       graphFramework.registerWidgetType(NumericControlWidget, "REAL");
       graphFramework.registerWidgetType(NumericDisplayWidget, "REAL");
+      graphFramework.registerWidgetType(StringControlWidget, "STRING");
+      graphFramework.registerWidgetType(StringDisplayWidget, "STRING");
+      graphFramework.registerWidgetType(EnumControlWidget, "ENUM");
+      graphFramework.registerWidgetType(EnumDisplayWidget, "ENUM");
 
       var graph = graphFramework.create();
       var canvas = new GraphCanvas("#mycanvas", graph);

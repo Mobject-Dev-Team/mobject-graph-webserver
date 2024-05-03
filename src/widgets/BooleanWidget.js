@@ -1,100 +1,66 @@
-class BooleanWidgetDrawer {
-  constructor(label) {
-    this.label = label;
-    this.labelFont = "12px Arial";
-    this.labelTextColor = "#999";
-    this.valueFont = "12px Arial";
-    this.valueTextColor = "#ddd";
-    this.margin = 20;
-    this.outlineColor = "#666";
-    this.backgroundColor = "#222";
-    this.trueIndicatorColor = "#39e75f";
-    this.falseIndicatorColor = "#333";
-  }
-
-  draw(ctx, node, widget_width, y, H, value) {
-    ctx.textAlign = "left";
-    const drawWidth = widget_width - this.margin * 2;
-    this.drawBackground(ctx, y, drawWidth, H);
-    this.drawLabel(ctx, y, H);
-    this.drawValue(ctx, value, drawWidth, y, H);
-    this.drawIndicator(ctx, value, drawWidth, y, H);
-  }
-
-  drawBackground(ctx, y, drawWidth, H) {
-    ctx.strokeStyle = this.outlineColor;
-    ctx.fillStyle = this.backgroundColor;
-    ctx.beginPath();
-    ctx.roundRect(this.margin, y, drawWidth, H, H * 0.5);
-    ctx.fill();
-    ctx.stroke();
-  }
-
-  drawLabel(ctx, y, H) {
-    ctx.font = this.labelFont;
-    ctx.fillStyle = this.labelTextColor;
-    ctx.fillText(this.label, this.margin * 2 + 5, y + H * 0.7);
-  }
-
-  drawValue(ctx, value, drawWidth, y, H) {
-    ctx.font = this.valueFont;
-    ctx.fillStyle = this.valueTextColor;
-    ctx.textAlign = "right";
-    ctx.fillText(value ? "true" : "false", drawWidth - 20, y + H * 0.7);
-  }
-
-  drawIndicator(ctx, value, drawWidth, y, H) {
-    ctx.fillStyle = value ? this.trueIndicatorColor : this.falseIndicatorColor;
-    ctx.beginPath();
-    ctx.arc(drawWidth + 4, y + H * 0.5, H * 0.25, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
+/**
+ * This file defines two widget classes for use with IEC61131-3 BOOLEAN data types:
+ *
+ * 1. BooleanControlWidget: This widget allows users to interactively control BOOLEAN values.
+ *    - Interaction is straightforward: click the widget to toggle the boolean value between TRUE and FALSE.
+ *
+ * 2. BooleanDisplayWidget: This read-only widget is used to display BOOLEAN values, showing them as either TRUE or FALSE.
+ *
+ * Both widgets can be registered for the BOOLEAN data type using the graphFramework as follows:
+ * graphFramework.registerWidgetType(BooleanControlWidget, "BOOL");
+ * graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
+ *
+ * These widgets are designed to integrate seamlessly with BOOLEAN data types, offering a simple and effective user
+ * interface for displaying and controlling boolean states within the graphFramework environment.
+ */
 
 class BooleanDisplayWidget extends DisplayWidgetBase {
   constructor(name, content) {
     super(name, content);
-    this.value = content.defaultValue;
-    this.drawer = new BooleanWidgetDrawer(name);
+    this.led = new LedComponent(
+      name,
+      content.defaultValue,
+      new ColorGenerator(content.datatype.typeName)
+    );
   }
 
   onDisplayValueChanged(newValue, oldValue) {
-    this.value = newValue;
+    this.led.isActive = newValue;
   }
 
   computeSize() {
-    return new Float32Array([60, 20]);
+    return this.led.computeSize();
   }
 
   onDraw(ctx, node, widget_width, y, H) {
-    this.drawer.draw(ctx, node, widget_width, y, H, this.value);
+    this.led.draw(ctx, node, widget_width, y, H);
   }
 }
 
 class BooleanControlWidget extends ControlWidgetBase {
   constructor(name, property, parameter, content) {
     super(name, property, parameter, content);
-    this.value = parameter.defaultValue;
-    this.drawer = new BooleanWidgetDrawer(name);
+    this.checkbox = new CheckboxComponent(
+      name,
+      parameter.defaultValue,
+      new ColorGenerator(parameter.datatype.typeName)
+    );
+    this.checkbox.on("onChange", (isChecked) => super.notifyChange(isChecked));
   }
 
   onDisplayValueChanged(newValue, oldValue) {
-    this.value = newValue;
-    super.notifyChange(this.value);
+    this.checkbox.isChecked = newValue;
   }
 
   computeSize() {
-    return new Float32Array([60, 20]);
+    return this.checkbox.computeSize();
   }
 
   onMouse(event, pos, node) {
-    if (event.type == "mousedown") {
-      this.value = !this.value;
-      super.notifyChange(this.value);
-    }
+    this.checkbox.onMouse(event, pos);
   }
 
   onDraw(ctx, node, widget_width, y, H) {
-    this.drawer.draw(ctx, node, widget_width, y, H, this.value);
+    this.checkbox.draw(ctx, node, widget_width, y, H);
   }
 }

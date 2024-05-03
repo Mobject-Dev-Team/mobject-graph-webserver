@@ -45,9 +45,9 @@ class GraphFramework {
       let t = text.toString();
 
       if (typeof fontSize === "undefined")
-        return this.liteGraph.NODE_TEXT_SIZE * t.length * 0.6;
+        return this.NODE_TEXT_SIZE * t.length * 0.6;
 
-      return this.liteGraph.NODE_TEXT_SIZE * t.length * fontSize;
+      return this.NODE_TEXT_SIZE * t.length * fontSize;
     };
 
     return new Proxy(this, {

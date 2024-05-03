@@ -57,31 +57,31 @@ class WidgetBase {
 }
 
 class DisplayWidgetBase extends WidgetBase {
-  displayValue = null;
+  _previousValue = null;
   static capability = "display";
 
   constructor(name, content) {
     super(name);
     this._ensureNotAbstract(DisplayWidgetBase, new.target);
     this.content = content;
-    this.boundHandleNodeUpdated = this.handleNodeUpdated.bind(this);
+    this.boundHandleNodeUpdatedEvent = this.handleNodeUpdatedEvent.bind(this);
   }
 
   registerWithParent(parentNode) {
     super.registerWithParent(parentNode);
     if (this.content) {
-      parentNode.on("nodeUpdated", this.boundHandleNodeUpdated);
+      parentNode.on("nodeUpdated", this.boundHandleNodeUpdatedEvent);
     }
   }
 
   unregisterWithParent() {
     super.unregisterWithParent();
     if (this.parentNode) {
-      this.parentNode.off("nodeUpdated", this.boundHandleNodeUpdated);
+      this.parentNode.off("nodeUpdated", this.boundHandleNodeUpdatedEvent);
     }
   }
 
-  handleNodeUpdated(status) {
+  handleNodeUpdatedEvent(status) {
     const value = status.contents?.find(
       (content) => content.name === this.content.name
     )?.value;
@@ -91,10 +91,10 @@ class DisplayWidgetBase extends WidgetBase {
   }
 
   update(newValue) {
-    if (newValue !== this.displayValue) {
-      const oldValue = this.displayValue;
-      this.displayValue = newValue;
-      this.onDisplayValueChanged(newValue, oldValue);
+    if (newValue !== this._previousValue) {
+      const previousValue = this._previousValue;
+      this._previousValue = newValue;
+      this.onDisplayValueChanged(newValue, previousValue);
       this.parentNode?.setDirtyCanvas(true, true);
     }
   }
