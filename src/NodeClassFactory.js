@@ -16,21 +16,16 @@ class NodeClassFactory {
   }
 
   getNodeNameFromBlueprint(blueprint) {
-    return blueprint.path.split(".").pop();
+    return blueprint.path.split("/").pop();
   }
 
   getNodePathFromBlueprint(blueprint) {
-    let path = blueprint.path.split(".").slice(0, -1).join("/");
-    return path
-      .replace(/([A-Z])/g, " $1")
-      .trim()
-      .replace(/^ /, "");
+    let path = blueprint.path.split("/").slice(0, -1).join("/");
+    return path;
   }
 
   getNodeTypeFromBlueprint(blueprint) {
-    const path = this.getNodePathFromBlueprint(blueprint);
-    const name = this.getNodeNameFromBlueprint(blueprint);
-    return `${path}${path ? "/" : ""}${name.replace(/([A-Z])/g, " $1").trim()}`;
+    return blueprint.path;
   }
 
   create(blueprint) {
@@ -52,6 +47,11 @@ class NodeClassFactory {
       value: nodeName,
       writable: false,
     });
+
+    // Object.defineProperty(nodeClass, "skip_list", {
+    //   value: true,
+    //   writable: false,
+    // });
 
     return nodeClass;
   }

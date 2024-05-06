@@ -25,7 +25,6 @@ class MobjectGraphTransformer {
     return nodes.map((node) => ({
       ...node,
       id: String(node.id),
-      type: this.#convertTypeToSpecialString(node.type),
     }));
   }
 
@@ -64,19 +63,5 @@ class MobjectGraphTransformer {
         type,
       ];
     });
-  }
-
-  #convertTypeToSpecialString(typeStr) {
-    return typeStr
-      .split("/")
-      .map((segment) =>
-        segment
-          .split(" ")
-          .map(
-            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-          )
-          .join("")
-      )
-      .join(".");
   }
 }
