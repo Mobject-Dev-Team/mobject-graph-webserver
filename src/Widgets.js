@@ -46,6 +46,16 @@ class Widgets {
     return this.widgets.has(specificKey) || this.widgets.has(wildcardKey);
   }
 
+  hasDisplay(type, identifier) {
+    const capability = Widgets.DISPLAY;
+    return this.has(type, capability, identifier);
+  }
+
+  hasControl(type, identifier) {
+    const capability = Widgets.CONTROL;
+    return this.has(type, capability, identifier);
+  }
+
   remove(type, capability, identifier = undefined) {
     const specificKey = this._createKey(type, capability, identifier);
     const wildcardKey = this._createKey(type, capability, Widgets.WILDCARD);

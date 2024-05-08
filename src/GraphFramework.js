@@ -27,7 +27,7 @@ class GraphFramework {
     this.liteGraph = LiteGraph;
     this.widgets = new Widgets();
 
-    this.nodeClassFactory = new NodeClassFactory();
+    this.nodeClassFactory = new NodeClassFactory(this.widgets);
     this.nodeClassFactory.registerHandler(new NodeInputPortBlueprintHandler());
     this.nodeClassFactory.registerHandler(new NodeOutputPortBlueprintHandler());
     this.nodeClassFactory.registerHandler(
@@ -77,11 +77,22 @@ class GraphFramework {
 
   installNodeBlueprint(blueprint) {
     if (blueprint) {
-      const nodeClass = this.nodeClassFactory.create(blueprint);
       const nodeType =
         this.nodeClassFactory.getNodeTypeFromBlueprint(blueprint);
+      if (!nodeType) {
+        console.log("Failed to determine node type from blueprint.");
+        return;
+      }
+
+      const nodeClass = this.nodeClassFactory.create(blueprint);
+      if (!nodeClass) {
+        console.log("Unable to create node class from blueprint.", nodeType);
+        return;
+      }
 
       this.registerNodeType(nodeType, nodeClass);
+    } else {
+      console.error("No blueprint provided to installNodeBlueprint.");
     }
   }
 

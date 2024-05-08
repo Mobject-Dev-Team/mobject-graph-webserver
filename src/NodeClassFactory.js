@@ -1,5 +1,6 @@
 class NodeClassFactory {
-  constructor() {
+  constructor(widgets) {
+    this.widgets = widgets;
     this.handlers = new NodeBlueprintHandlers();
   }
 
@@ -12,7 +13,13 @@ class NodeClassFactory {
   }
 
   validateBlueprint(blueprint) {
-    return blueprint.path;
+    const validations = [
+      this.checkBlueprintHasPath.bind(this),
+      this.checkBlueprintParametersAreSupported.bind(this),
+      this.checkBlueprintContentsAreSupported.bind(this),
+    ];
+
+    return validations.every((validation) => validation(blueprint));
   }
 
   getNodeNameFromBlueprint(blueprint) {
@@ -28,9 +35,44 @@ class NodeClassFactory {
     return blueprint.path;
   }
 
+  checkBlueprintHasPath(blueprint) {
+    return blueprint.path;
+  }
+
+  checkBlueprintParametersAreSupported(blueprint) {
+    if (!blueprint.node.parameters) return true;
+
+    return blueprint.node.parameters.every((parameter) => {
+      const { typeName, identifier } = parameter.datatype;
+      return this.widgets.hasControl(typeName, identifier);
+    });
+  }
+
+  checkBlueprintContentsAreSupported(blueprint) {
+    if (!blueprint.node.contents) return true;
+
+    const parameterSet = new Set(
+      (blueprint.node?.parameters || []).map(
+        (p) => `${p.datatype.typeName}-${p.datatype.identifier}`
+      )
+    );
+
+    return blueprint.node.contents.every((content) => {
+      const { typeName, identifier } = content.datatype;
+      const key = `${typeName}-${identifier}`;
+      if (
+        parameterSet.has(key) &&
+        this.widgets.hasControl(typeName, identifier)
+      ) {
+        return true;
+      }
+      return this.widgets.hasDisplay(typeName, identifier);
+    });
+  }
+
   create(blueprint) {
     if (!this.validateBlueprint(blueprint)) {
-      throw new Error("Invalid blueprint structure");
+      return;
     }
 
     const factory = this;
@@ -47,11 +89,6 @@ class NodeClassFactory {
       value: nodeName,
       writable: false,
     });
-
-    // Object.defineProperty(nodeClass, "skip_list", {
-    //   value: true,
-    //   writable: false,
-    // });
 
     return nodeClass;
   }

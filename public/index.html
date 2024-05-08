@@ -96,8 +96,8 @@
       graphFramework.registerWidgetType(NumericDisplayWidget, "LREAL");
       graphFramework.registerWidgetType(StringControlWidget, "STRING");
       graphFramework.registerWidgetType(StringDisplayWidget, "STRING");
-      graphFramework.registerWidgetType(EnumControlWidget, "ENUM");
-      graphFramework.registerWidgetType(EnumDisplayWidget, "ENUM");
+      graphFramework.registerWidgetType(EnumControlWidget, "ENUM", "*");
+      graphFramework.registerWidgetType(EnumDisplayWidget, "ENUM", "*");
 
       var graph = graphFramework.create();
       var canvas = new GraphCanvas("#mycanvas", graph);
