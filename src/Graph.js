@@ -70,7 +70,7 @@ class Graph extends LGraph {
     this.#notifyChange("nodeRemoved", node);
   }
 
-  connectionChange(node, link_info) {
+  onConnectionChange(node, link_info) {
     this.#updateUuid();
     this.#notifyChange("connectionChange", node, link_info);
   }
