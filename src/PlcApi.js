@@ -3,6 +3,7 @@ class PlcApi {
     this.graph = graph;
     this.graphFramework = graphFramework;
     this.transformer = new MobjectGraphTransformer();
+    this.statusTimeout = null;
 
     function debounceAndThrottle(func, wait) {
       let timeout = null;
@@ -62,22 +63,25 @@ class PlcApi {
   }
 
   startStatusUpdates() {
-    // Clear any existing interval to prevent duplicates
-    if (this.statusInterval) {
-      clearInterval(this.statusInterval);
-    }
+    // Clear any existing timeout to prevent duplicates
+    this.stopStatusUpdates();
 
-    // Call getStatus every 0.5 seconds
-    this.statusInterval = setInterval(() => {
-      this.getStatus();
-    }, 100);
+    // Initialize the status updates
+    this.scheduleNextUpdate();
   }
 
   stopStatusUpdates() {
-    if (this.statusInterval) {
-      clearInterval(this.statusInterval);
-      this.statusInterval = null;
+    if (this.statusTimeout) {
+      clearTimeout(this.statusTimeout);
+      this.statusTimeout = null;
     }
+  }
+
+  scheduleNextUpdate() {
+    console.log("scheduleNextUpdate");
+    this.statusTimeout = setTimeout(() => {
+      this.getStatus();
+    }, 500);
   }
 
   getStatus() {
@@ -85,10 +89,11 @@ class PlcApi {
       .then((result) => {
         // console.log("Status:", result);
         this.graph.update(result);
+        this.scheduleNextUpdate();
       })
       .catch((error) => {
         console.error("RPC call failed:", error);
-        this.stopStatusUpdates(); // Optionally stop updates on error
+        this.stopStatusUpdates();
       });
   }
 

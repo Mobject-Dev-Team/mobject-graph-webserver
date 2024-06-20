@@ -87,6 +87,7 @@ class GraphFramework {
       const nodeClass = this.nodeClassFactory.create(blueprint);
       if (!nodeClass) {
         console.log("Unable to create node class from blueprint.", nodeType);
+        console.log(blueprint);
         return;
       }
 

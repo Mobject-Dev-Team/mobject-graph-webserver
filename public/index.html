@@ -36,6 +36,8 @@
     <script src="./src/WidgetBase.js"></script>
     <script src="./src/utils/NumberLimiter.js"></script>
     <script src="./src/utils/ColorGenerator.js"></script>
+    <script src="./src/utils/ITcVnImageConversion.js"></script>
+    <script src="./src/utils/DeepEqual.js"></script>
     <script src="./src/content/NumericContent.js"></script>
     <script src="./src/parameter/NumericParameter.js"></script>
     <script src="./src/components/LedComponent.js"></script>
@@ -49,6 +51,7 @@
     <script src="./src/widgets/NumericWidget.js"></script>
     <script src="./src/widgets/StringWidget.js"></script>
     <script src="./src/widgets/EnumWidget.js"></script>
+    <script src="./src/widgets/ITcVnImageWidget.js"></script>
     <script src="./src/Node.js"></script>
     <script src="./src/Graph.js"></script>
     <script src="./src/GraphFramework.js"></script>
@@ -98,6 +101,16 @@
       graphFramework.registerWidgetType(StringDisplayWidget, "STRING");
       graphFramework.registerWidgetType(EnumControlWidget, "ENUM", "*");
       graphFramework.registerWidgetType(EnumDisplayWidget, "ENUM", "*");
+      graphFramework.registerWidgetType(
+        ITcVnImageControlWidget,
+        "INTERFACE",
+        "ITcVnImage"
+      );
+      graphFramework.registerWidgetType(
+        ITcVnImageDisplayWidget,
+        "INTERFACE",
+        "ITcVnImage"
+      );
 
       var graph = graphFramework.create();
       var canvas = new GraphCanvas("#mycanvas", graph);
