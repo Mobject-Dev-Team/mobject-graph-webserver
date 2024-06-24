@@ -11,7 +11,7 @@ const port = 8000;
 
 app.use("/litegraph/css", express.static(path.join(litegraphPath, "css")));
 app.use("/litegraph/src", express.static(path.join(litegraphPath, "src")));
-app.use("/src", express.static("./src"));
+app.use("/src", express.static("./mobject-graph-ui"));
 app.use("/", express.static("./public"));
 app.use(express.json());
 
@@ -62,7 +62,7 @@ app.post("/assets/getAssets", async (req, res) => {
 
 browserSync.init({
   proxy: `localhost:${port}`,
-  files: ["public/**/*.*", "src/**/*.*", "litegraph.js/*.*"],
+  files: ["public/**/*.*", "mobject-graph-ui/**/*.*", "litegraph.js/*.*"],
   port: 5000,
   ui: { port: 5001 },
   notify: false,
