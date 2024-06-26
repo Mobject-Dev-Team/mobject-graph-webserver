@@ -1,5 +1,3 @@
-Work in progress.. Please try back later.
-
 # mobject-graph-webserver
 
 ## Disclaimer
@@ -31,29 +29,31 @@ All nodes are "learnt" from the PLC project by clicking "Get Blueprints". At thi
 
 ### TwinCAT
 
-To use this project you will need to run v0.1.1 of mobject-graph-test-project. Activate and run the TwinCAT project, then use mobject-graph-webserver to connect a graph flow based editor.
+To use this project you will need [cloud-vision-toolkit](https://github.com/VisionToolkit-Dev-Team/cloud-vision-toolkit). Activate and run the TwinCAT project, then use mobject-graph-webserver to connect a graph flow based editor.
+
+If you are missing any of the mobject-libraries, then simply right click on the project and select "Install Project Library (unknown versions)"
 
 ### Web Server
 
-To clone
+1. Clone
 
 ```
 git clone https://github.com/Mobject-Dev-Team/mobject-graph-webserver.git
 ```
 
-Then get the litegraph repo using,
+2. Get external repos
 
 ```
 npm run get-litegraph
 ```
 
-Install dependency,
+3. Install node dependencies
 
 ```
 npm install
 ```
 
-Run
+4. Run the UI
 
 ```
 npm start

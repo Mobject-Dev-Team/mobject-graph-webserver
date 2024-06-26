@@ -5,7 +5,12 @@ const app = express();
 const { AdsRpcClient } = require("mobject-client");
 require("dotenv").config();
 
-const client = new AdsRpcClient(process.env.NET_ID, 851, "Main.server");
+const defaultNetId = "127.0.0.1.1.1";
+const client = new AdsRpcClient(
+  process.env.NET_ID || defaultNetId,
+  851,
+  "Main.server"
+);
 const litegraphPath = path.join(__dirname, "litegraph.js");
 const port = 8000;
 
