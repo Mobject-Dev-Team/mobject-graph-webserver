@@ -50,7 +50,7 @@ export class PlcApi {
     );
 
     // console.log("Configuration Change");
-    console.log(graphPayload);
+    //console.log(graphPayload);
 
     callRPC("CreateGraph", {
       graph: graphPayload,
@@ -81,7 +81,7 @@ export class PlcApi {
   }
 
   scheduleNextUpdate() {
-    console.log("scheduleNextUpdate");
+    //console.log("scheduleNextUpdate");
     this.statusTimeout = setTimeout(() => {
       this.getStatus();
     }, 500);
@@ -103,7 +103,7 @@ export class PlcApi {
   getBlueprints() {
     callRPC("GetBlueprints")
       .then((result) => {
-        console.log("RPC result:", result);
+        //console.log("RPC result:", result);
         this.graphFramework.installNodeBlueprints(result.blueprints);
       })
       .catch((error) => console.error("RPC call failed:", error));

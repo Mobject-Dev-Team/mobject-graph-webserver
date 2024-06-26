@@ -86,7 +86,7 @@ export class NodeClassFactory {
       static desc = "";
 
       constructor() {
-        super();
+        super(nodeName);
         factory.handlers.handle(this, blueprint.node);
       }
     };

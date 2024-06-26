@@ -102,7 +102,7 @@ export class GraphFramework {
         return;
       }
 
-      this.registerNodeType(nodeType, nodeClass);
+      this.registerNodeClass(nodeType, nodeClass);
     } else {
       console.error("No blueprint provided to installNodeBlueprint.");
     }
@@ -120,7 +120,7 @@ export class GraphFramework {
    ** of our base class, as such this was made.  Also, some of the unused parts
    ** were removed to simplfiy the call
    */
-  registerNodeTyped(type, base_class) {
+  registerNodeClass(type, base_class) {
     base_class.type = type;
     const classname = base_class.name;
 
@@ -142,15 +142,67 @@ export class GraphFramework {
     }
 
     const prev = this.liteGraph.registered_node_types[type];
+
+    if (prev) {
+      this.log_debug("registerNodeType", "replacing node type", type, prev);
+    }
+
     this.liteGraph.registered_node_types[type] = base_class;
     if (base_class.constructor.name) {
       this.liteGraph.Nodes[classname] = base_class;
     }
-    if (this.liteGraph.onNodeTypeRegistered) {
-      this.liteGraph.onNodeTypeRegistered(type, base_class);
+
+    this.processCallbackHandlers(
+      "onNodeTypeRegistered",
+      {
+        def_cb: this.onNodeTypeRegistered,
+      },
+      type,
+      base_class
+    );
+
+    if (prev) {
+      this.processCallbackHandlers(
+        "onNodeTypeReplaced",
+        {
+          def_cb: this.onNodeTypeReplaced,
+        },
+        type,
+        base_class,
+        prev
+      );
     }
-    if (prev && this.liteGraph.onNodeTypeReplaced) {
-      this.liteGraph.onNodeTypeReplaced(type, base_class, prev);
+
+    // warnings
+    if (base_class.prototype.onPropertyChange) {
+      LiteGraph.log_warn(
+        "LiteGraph node class " +
+          type +
+          " has onPropertyChange method, it must be called onPropertyChanged with d at the end"
+      );
+    }
+
+    // used to know which nodes create when dragging files to the canvas
+    if (base_class.supported_extensions) {
+      for (var i = 0; i < base_class.supported_extensions.length; i++) {
+        var ext = base_class.supported_extensions[i];
+        if (ext && ext.constructor === String)
+          this.node_types_by_file_extension[ext.toLowerCase()] = base_class;
+      }
+    }
+
+    this.log_debug("registerNodeType", "type registered", type);
+
+    if (this.auto_load_slot_types) {
+      // auto_load_slot_types should be used when not specifing slot type to LiteGraph
+      // good for testing: this will create a temporary node for each type
+      this.log_debug(
+        "registerNodeType",
+        "auto_load_slot_types, create empy tmp node",
+        type
+      );
+      let tmpnode = new base_class(base_class.title ?? "tmpnode");
+      tmpnode.post_constructor(); // could not call, but eventually checking for errors in the chain ?
     }
   }
 

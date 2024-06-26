@@ -1,9 +1,12 @@
 import { EventEmitter } from "./utils/EventEmitter.js";
+import { LGraphNode } from "/litegraph/src/lgraphnode.js";
+import { LiteGraph } from "/litegraph/src/litegraph.js";
 
-export class Node {
+export class Node extends LGraphNode {
   #eventEmitter = new EventEmitter();
 
-  constructor() {
+  constructor(title) {
+    super(title);
     this._shape = 2;
   }
 

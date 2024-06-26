@@ -1,4 +1,5 @@
 import { EventEmitter } from "../utils/EventEmitter.js";
+import { LiteGraph } from "/litegraph/src/litegraph.js";
 
 export class ComboboxComponent {
   constructor(label, defaultValue, options, colorGenerator) {
@@ -39,7 +40,7 @@ export class ComboboxComponent {
 
   onMouse(event, pos) {
     const component = this;
-    if (event.type === "mousedown") {
+    if (event.type === "pointerdown") {
       var ref_window = event.target.data.getCanvasWindow();
       var menu = new LiteGraph.ContextMenu(
         this.options,

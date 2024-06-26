@@ -51,11 +51,11 @@ export class NumericInputComponent {
     const widgetWidth = node.size[0];
     const multiplier = this.getMultiplier(event);
 
-    if (event.type === "mousedown") {
+    if (event.type === "pointerdown") {
       this.handleMouseDown(x, widgetWidth, multiplier);
-    } else if (event.type === "mousemove") {
+    } else if (event.type === "pointermove") {
       this.handleMouseMove(x, multiplier);
-    } else if (event.type === "mouseup") {
+    } else if (event.type === "pointerup") {
       this.handleMouseUp(x, widgetWidth, event);
     }
   }

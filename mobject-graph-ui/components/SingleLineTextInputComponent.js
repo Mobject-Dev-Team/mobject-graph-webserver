@@ -38,7 +38,7 @@ export class SingleLineTextInputComponent {
 
   onMouse(event, pos) {
     const component = this;
-    if (event.type === "mousedown") {
+    if (event.type === "pointerdown") {
       event.target.data.prompt(
         "Value",
         this._text,

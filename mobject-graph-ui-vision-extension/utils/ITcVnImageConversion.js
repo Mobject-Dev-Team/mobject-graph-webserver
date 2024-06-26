@@ -24,7 +24,7 @@
 };
 */
 
-function loadITcVnImageToImg(img, itcvnimage) {
+export function loadITcVnImageToImg(img, itcvnimage) {
   // Destructure the data object
   const {
     imageInfo: { nWidth, nHeight, stPixelFormat },

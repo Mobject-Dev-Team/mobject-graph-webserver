@@ -1,4 +1,6 @@
 import { DisplayWidgetBase, ControlWidgetBase } from "../widget-base.js";
+import { deepEqual } from "../utils/DeepEqual.js";
+import { loadITcVnImageToImg } from "../utils/ITcVnImageConversion.js";
 
 export class ITcVnImageDisplayWidget extends DisplayWidgetBase {
   constructor(name, content) {

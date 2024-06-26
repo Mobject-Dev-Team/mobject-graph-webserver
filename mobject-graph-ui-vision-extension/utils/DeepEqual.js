@@ -1,4 +1,4 @@
-function deepEqual(object1, object2) {
+export function deepEqual(object1, object2) {
   if (object1 === object2) {
     return true;
   }
