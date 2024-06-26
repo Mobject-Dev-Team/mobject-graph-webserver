@@ -5,13 +5,19 @@ const app = express();
 const { AdsRpcClient } = require("mobject-client");
 require("dotenv").config();
 
-const client = new AdsRpcClient(process.env.NET_ID, 851, "Main.server");
+const defaultNetId = "127.0.0.1.1.1";
+const client = new AdsRpcClient(
+  process.env.NET_ID || defaultNetId,
+  851,
+  "Main.server"
+);
 const litegraphPath = path.join(__dirname, "litegraph.js");
 const port = 8000;
 
 app.use("/litegraph/css", express.static(path.join(litegraphPath, "css")));
 app.use("/litegraph/src", express.static(path.join(litegraphPath, "src")));
-app.use("/src", express.static("./src"));
+app.use("/src", express.static("./mobject-graph-ui"));
+app.use("/src", express.static("./mobject-graph-ui-vision-extension"));
 app.use("/", express.static("./public"));
 app.use(express.json());
 
@@ -62,7 +68,7 @@ app.post("/assets/getAssets", async (req, res) => {
 
 browserSync.init({
   proxy: `localhost:${port}`,
-  files: ["public/**/*.*", "src/**/*.*", "litegraph.js/*.*"],
+  files: ["public/**/*.*", "mobject-graph-ui/**/*.*", "litegraph.js/*.*"],
   port: 5000,
   ui: { port: 5001 },
   notify: false,

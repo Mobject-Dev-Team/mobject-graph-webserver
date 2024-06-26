@@ -1,121 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GraphFramework</title>
-
     <link
       rel="stylesheet"
       type="text/css"
       href="./litegraph/css/litegraph.css"
     />
-
     <link rel="stylesheet" type="text/css" href="./style.css" />
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-    <!-- Core -->
-    <script src="./litegraph/src/LiteGraph.js"></script>
-    <script src="./litegraph/src/LGraph.js"></script>
-    <script src="./litegraph/src/LLink.js"></script>
-    <script src="./litegraph/src/LGraphNode.js"></script>
-    <script src="./litegraph/src/LGraphGroup.js"></script>
-    <script src="./litegraph/src/DragAndScale.js"></script>
-    <script src="./litegraph/src/LGraphCanvas.js"></script>
-    <script src="./litegraph/src/ContextMenu.js"></script>
-    <script src="./litegraph/src/CurveEditor.js"></script>
-    <script src="./litegraph/src/Editor.js"></script>
-    <script src="defaults.js"></script>
-
-    <script src="./src/GraphCanvas.js"></script>
-    <script src="./src/LitegraphToMobjectTransformations.js"></script>
-    <script src="./src/PlcApi.js"></script>
-    <script src="./src/EventEmitter.js"></script>
-    <script src="./src/NodeBlueprintHandlers.js"></script>
-    <script src="./src/Widgets.js"></script>
-    <script src="./src/NodeClassFactory.js"></script>
-    <script src="./src/WidgetBase.js"></script>
-    <script src="./src/utils/NumberLimiter.js"></script>
-    <script src="./src/utils/ColorGenerator.js"></script>
-    <script src="./src/utils/ITcVnImageConversion.js"></script>
-    <script src="./src/utils/DeepEqual.js"></script>
-    <script src="./src/content/NumericContent.js"></script>
-    <script src="./src/parameter/NumericParameter.js"></script>
-    <script src="./src/components/LedComponent.js"></script>
-    <script src="./src/components/CheckboxComponent.js"></script>
-    <script src="./src/components/SingleLineTextInputComponent.js"></script>
-    <script src="./src/components/SingleLineTextDisplayComponent.js"></script>
-    <script src="./src/components/NumericInputComponent.js"></script>
-    <script src="./src/components/NumericDisplayComponent.js"></script>
-    <script src="./src/components/ComboboxComponent.js"></script>
-    <script src="./src/widgets/BooleanWidget.js"></script>
-    <script src="./src/widgets/NumericWidget.js"></script>
-    <script src="./src/widgets/StringWidget.js"></script>
-    <script src="./src/widgets/EnumWidget.js"></script>
-    <script src="./src/widgets/ITcVnImageWidget.js"></script>
-    <script src="./src/Node.js"></script>
-    <script src="./src/Graph.js"></script>
-    <script src="./src/GraphFramework.js"></script>
-
-    <script src="./src/ServerRpcCall.js"></script>
   </head>
   <body>
     <div id="main"></div>
-
     <div class="litegraph" style="height: 100%; width: 100%">
       <canvas id="mycanvas" height="600" width="800"></canvas>
     </div>
-    <script>
-      var graphFramework = new GraphFramework();
+    <button id="getBlueprintsBtn">Get Blueprints</button>
 
-      graphFramework.registerWidgetType(BooleanControlWidget, "BOOL");
-      graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
-      graphFramework.registerWidgetType(NumericControlWidget, "BYTE");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "BYTE");
-      graphFramework.registerWidgetType(NumericControlWidget, "WORD");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "WORD");
-      graphFramework.registerWidgetType(NumericControlWidget, "DWORD");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "DWORD");
-      graphFramework.registerWidgetType(NumericControlWidget, "LWORD");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "LWORD");
-      graphFramework.registerWidgetType(NumericControlWidget, "INT");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "INT");
-      graphFramework.registerWidgetType(NumericControlWidget, "LINT");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "LINT");
-      graphFramework.registerWidgetType(NumericControlWidget, "DINT");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "DINT");
-      graphFramework.registerWidgetType(NumericControlWidget, "SINT");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "SINT");
-      graphFramework.registerWidgetType(NumericControlWidget, "USINT");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "USINT");
-      graphFramework.registerWidgetType(NumericControlWidget, "UINT");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "UINT");
-      graphFramework.registerWidgetType(NumericControlWidget, "UDINT");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "UDINT");
-      graphFramework.registerWidgetType(NumericControlWidget, "ULINT");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "ULINT");
-      graphFramework.registerWidgetType(NumericControlWidget, "REAL");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "REAL");
-      graphFramework.registerWidgetType(NumericControlWidget, "LREAL");
-      graphFramework.registerWidgetType(NumericDisplayWidget, "LREAL");
-      graphFramework.registerWidgetType(StringControlWidget, "STRING");
-      graphFramework.registerWidgetType(StringDisplayWidget, "STRING");
-      graphFramework.registerWidgetType(EnumControlWidget, "ENUM", "*");
-      graphFramework.registerWidgetType(EnumDisplayWidget, "ENUM", "*");
-      graphFramework.registerWidgetType(
-        ITcVnImageControlWidget,
-        "INTERFACE",
-        "ITcVnImage"
-      );
-      graphFramework.registerWidgetType(
-        ITcVnImageDisplayWidget,
-        "INTERFACE",
-        "ITcVnImage"
-      );
-
-      var graph = graphFramework.create();
-      var canvas = new GraphCanvas("#mycanvas", graph);
-      var api = new PlcApi(graph, graphFramework);
-    </script>
-    <button onclick="api.getBlueprints()">Get Blueprints</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script type="module" src="./index.js"></script>
+    <script type="module" src="./defaults.js"></script>
   </body>
 </html>
