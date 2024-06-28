@@ -78,6 +78,10 @@ export class GraphFramework {
     });
   }
 
+  install(graphPack) {
+    graphPack.registerWidgets(this);
+  }
+
   installNodeBlueprints(blueprints) {
     if (blueprints && Array.isArray(blueprints)) {
       blueprints.forEach((blueprint) => {
