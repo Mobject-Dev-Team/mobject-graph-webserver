@@ -9,13 +9,16 @@ IecDatatypesPack.Install();
 VisionPack.Install();
 
 var client = new FetchRpcClient();
-var api = new GraphFrameworkApi(graph, client);
+var api = new GraphFrameworkApi(client);
 
-var graph = new GraphEditor({
-  containerSelector: "#my-editor",
-  width: 800,
-  height: 600,
-});
+var graph = new GraphEditor(
+  {
+    containerSelector: "#my-editor",
+    width: 800,
+    height: 600,
+  },
+  api
+);
 
 document.getElementById("getBlueprintsBtn").addEventListener("click", () => {
   api.getBlueprints();

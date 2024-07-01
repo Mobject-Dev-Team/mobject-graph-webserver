@@ -218,10 +218,4 @@ export class GraphFramework {
       tmpnode.post_constructor(); // could not call, but eventually checking for errors in the chain ?
     }
   }
-
-  create(canvas, options) {
-    const graph = new Graph();
-    new LGraphCanvas(canvas, graph, options);
-    return graph;
-  }
 }

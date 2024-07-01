@@ -1,6 +1,7 @@
 export class MobjectGraphTransformer {
   // Public method to be used by class consumers
-  transformLiteGraphToMobject(liteGraphData) {
+  static Convert(graph) {
+    const liteGraphData = JSON.parse(JSON.stringify(graph.serialize()));
     // First, convert node IDs to strings
     const nodesWithConvertedIds = this.#convertNodeIdsToStrings(
       liteGraphData.nodes
@@ -21,7 +22,7 @@ export class MobjectGraphTransformer {
   }
 
   // Private method to convert node IDs to strings
-  #convertNodeIdsToStrings(nodes) {
+  static #convertNodeIdsToStrings(nodes) {
     return nodes.map((node) => ({
       ...node,
       id: String(node.id),
@@ -29,7 +30,7 @@ export class MobjectGraphTransformer {
   }
 
   // Private method to transform links
-  #transformLinks(nodes, links) {
+  static #transformLinks(nodes, links) {
     return links.map((link) => {
       const [
         linkId,
