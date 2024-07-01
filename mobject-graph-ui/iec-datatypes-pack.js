@@ -1,5 +1,4 @@
-import { GraphPack } from "./graph-pack.js";
-
+import { GraphFramework } from "../src/graph-framework.js";
 import {
   BooleanControlWidget,
   BooleanDisplayWidget,
@@ -14,8 +13,12 @@ import {
 } from "./widgets/StringWidget.js";
 import { EnumControlWidget, EnumDisplayWidget } from "./widgets/EnumWidget.js";
 
-export class IecDatatypesPack extends GraphPack {
-  registerWidgets(graphFramework) {
+export class IecDatatypesPack {
+  static Install(graphFramework = new GraphFramework()) {
+    this.RegisterWidgets(graphFramework);
+  }
+
+  static RegisterWidgets(graphFramework) {
     graphFramework.registerWidgetType(BooleanControlWidget, "BOOL");
     graphFramework.registerWidgetType(BooleanDisplayWidget, "BOOL");
     graphFramework.registerWidgetType(NumericControlWidget, "BYTE");

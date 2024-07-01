@@ -1,19 +1,21 @@
 import { IecDatatypesPack } from "../src/iec-datatypes-pack.js";
 import { VisionPack } from "../src/vision-pack.js";
-import { GraphFramework } from "../src/graph-framework.js";
-import { GraphCanvas } from "../src/graph-canvas.js";
-import { PlcApi } from "../src/plc-api.js";
 
-var iecDatatypesPack = new IecDatatypesPack();
-var visionPack = new VisionPack();
-var graphFramework = new GraphFramework();
+import { FetchRpcClient } from "../src/fetch-rpc-client.js";
+import { GraphFrameworkApi } from "../src/graph-framework-api.js";
+import { GraphEditor } from "../src/graph-editor.js";
 
-graphFramework.install(iecDatatypesPack);
-graphFramework.install(visionPack);
+IecDatatypesPack.Install();
+VisionPack.Install();
 
-var graph = graphFramework.create();
-new GraphCanvas("#mycanvas", graph);
-var api = new PlcApi(graph, graphFramework);
+var client = new FetchRpcClient();
+var api = new GraphFrameworkApi(graph, client);
+
+var graph = new GraphEditor({
+  containerSelector: "#my-editor",
+  width: 800,
+  height: 600,
+});
 
 document.getElementById("getBlueprintsBtn").addEventListener("click", () => {
   api.getBlueprints();

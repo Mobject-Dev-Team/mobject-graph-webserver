@@ -1,12 +1,12 @@
 import { MobjectGraphTransformer } from "./litegraph-converter.js";
-import { callRPC } from "./server-rpc-call.js";
+import { GraphFramework } from "../src/graph-framework.js";
 
-export class PlcApi {
-  constructor(graph, graphFramework) {
+export class GraphFrameworkApi {
+  constructor(graph, client) {
     this.graph = graph;
-    this.graphFramework = graphFramework;
     this.transformer = new MobjectGraphTransformer();
     this.statusTimeout = null;
+    this.client = client;
 
     function debounceAndThrottle(func, wait) {
       let timeout = null;
@@ -52,9 +52,10 @@ export class PlcApi {
     // console.log("Configuration Change");
     //console.log(graphPayload);
 
-    callRPC("CreateGraph", {
-      graph: graphPayload,
-    })
+    this.client
+      .callRPC("CreateGraph", {
+        graph: graphPayload,
+      })
       .then((result) => {
         // console.log("RPC result:", result);
         this.startStatusUpdates(); // Start the status updates when loadGraph is successful
@@ -88,7 +89,8 @@ export class PlcApi {
   }
 
   getStatus() {
-    callRPC("GetStatus", { graphUuid: this.graph.uuid })
+    this.client
+      .callRPC("GetStatus", { graphUuid: this.graph.uuid })
       .then((result) => {
         // console.log("Status:", result);
         this.graph.update(result);
@@ -100,11 +102,11 @@ export class PlcApi {
       });
   }
 
-  getBlueprints() {
-    callRPC("GetBlueprints")
+  getBlueprints(graphFramework = new GraphFramework()) {
+    this.client
+      .callRPC("GetBlueprints")
       .then((result) => {
-        //console.log("RPC result:", result);
-        this.graphFramework.installNodeBlueprints(result.blueprints);
+        graphFramework.installNodeBlueprints(result.blueprints);
       })
       .catch((error) => console.error("RPC call failed:", error));
   }

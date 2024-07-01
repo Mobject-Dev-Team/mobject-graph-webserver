@@ -8,6 +8,7 @@ import {
   NodeContentsBlueprintHandler,
 } from "./node-blueprint-handlers.js";
 import { Graph } from "./graph.js";
+import { LGraphCanvas } from "/litegraph/src/lgraphcanvas.js";
 
 // look after the widgets
 // have a .RegisterNodesByBlueprint
@@ -30,7 +31,13 @@ import { Graph } from "./graph.js";
  * and customize its behavior as needed for your specific application requirements.
  */
 export class GraphFramework {
+  static instance;
+
   constructor() {
+    if (GraphFramework.instance) {
+      return GraphFramework.instance;
+    }
+
     if (typeof LiteGraph === "undefined") {
       throw new Error("LiteGraph is not available in the global scope.");
     }
@@ -61,7 +68,7 @@ export class GraphFramework {
       return this.NODE_TEXT_SIZE * t.length * fontSize;
     };
 
-    return new Proxy(this, {
+    GraphFramework.instance = new Proxy(this, {
       get: (target, property, receiver) => {
         if (Reflect.has(target, property)) {
           return Reflect.get(target, property, receiver);
@@ -76,6 +83,8 @@ export class GraphFramework {
         }
       },
     });
+
+    return GraphFramework.instance;
   }
 
   install(graphPack) {
@@ -210,7 +219,9 @@ export class GraphFramework {
     }
   }
 
-  create() {
-    return new Graph();
+  create(canvas, options) {
+    const graph = new Graph();
+    new LGraphCanvas(canvas, graph, options);
+    return graph;
   }
 }
