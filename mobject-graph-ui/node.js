@@ -30,13 +30,6 @@ export class Node extends LGraphNode {
     this.#eventEmitter.emit("nodeUpdated", status);
   }
 
-  onPropertyChanged(name, value, prev_value) {
-    const graph = this.graph;
-    if (graph && !graph.block_configure_events) {
-      graph.onNodePropertyChanged(this, name, value, prev_value);
-    }
-  }
-
   computeSize(out) {
     let size = super.computeSize(out);
 

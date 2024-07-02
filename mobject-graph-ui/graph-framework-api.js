@@ -5,9 +5,18 @@ export class GraphFrameworkApi {
     this.client = client;
   }
 
-  async loadGraph(graph) {
+  async createGraph(graph) {
     return await this.client.callRPC("CreateGraph", {
       graph,
+    });
+  }
+
+  async updateParameterValue(graphUuid, nodeId, parameterName, parameterValue) {
+    return await this.client.callRPC("UpdateParameterValue", {
+      graphUuid,
+      nodeId,
+      parameterName,
+      parameterValue,
     });
   }
 

@@ -1,21 +1,15 @@
 import { LGraph } from "/litegraph/src/lgraph.js";
-import { EventEmitter } from "./utils/EventEmitter.js";
+import { LiteGraph } from "/litegraph/src/litegraph.js";
 
 export class Graph extends LGraph {
   #uuid = null;
-  #eventEmitter = new EventEmitter();
 
   constructor(o) {
     super(o);
-    this.#uuid = this.#generateUuid();
-  }
-
-  on(eventName, listener) {
-    this.#eventEmitter.on(eventName, listener);
-  }
-
-  off(eventName, listener) {
-    this.#eventEmitter.off(eventName, listener);
+    this.#uuid = LiteGraph.uuidv4();
+    this.registerCallbackHandler("onSerialize", (oCbInfo, data) => {
+      data.uuid = this.#uuid;
+    });
   }
 
   get uuid() {
@@ -31,54 +25,5 @@ export class Graph extends LGraph {
         }
       });
     }
-  }
-
-  #generateUuid() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-      /[xy]/g,
-      function (c) {
-        var r = (Math.random() * 16) | 0,
-          v = c === "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      }
-    );
-  }
-
-  onSerialize(data) {
-    data.uuid = this.#uuid;
-    return data;
-  }
-
-  #updateUuid() {
-    this.#uuid = this.#generateUuid();
-  }
-
-  #notifyChange(event, ...args) {
-    this.#eventEmitter.emit(event, ...args);
-    this.#eventEmitter.emit("configurationChanged");
-  }
-
-  onConfigure(data) {
-    this.#updateUuid();
-    this.#notifyChange("graphConfigure");
-  }
-
-  onNodeAdded(node) {
-    this.#updateUuid();
-    this.#notifyChange("nodeAdded", node);
-  }
-
-  onNodeRemoved(node) {
-    this.#updateUuid();
-    this.#notifyChange("nodeRemoved", node);
-  }
-
-  onConnectionChange(node, link_info) {
-    this.#updateUuid();
-    this.#notifyChange("connectionChange", node, link_info);
-  }
-
-  onNodePropertyChanged(node, name, value, prev_value) {
-    this.#notifyChange("propertyChange", node, name, value, prev_value);
   }
 }

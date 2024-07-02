@@ -34,18 +34,55 @@ export class GraphEditor {
     new LGraphCanvas(this.canvas, graph);
     this.graph = graph;
 
-    this.graph.on("configurationChanged", async () => {
-      try {
-        const graphPayload = MobjectGraphTransformer.Convert(this.graph);
-
-        await this.connection.loadGraph(graphPayload);
-        this.startStatusUpdates();
-      } catch (e) {
-        console.log(e);
+    this.graph.registerCallbackHandler(
+      "onConnectionChange",
+      async (oCbInfo, node) => {
+        await this.callCreateGraph();
       }
+    );
+
+    this.graph.registerCallbackHandler("onNodeAdded", async (oCbInfo, node) => {
+      node.registerCallbackHandler(
+        "onPropertyChanged",
+        async (oCbInfo, name, value, prevValue) => {
+          try {
+            const reply = await this.connection.updateParameterValue(
+              this.graph.uuid,
+              node.id,
+              name,
+              value
+            );
+            console.log(reply);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      );
+
+      await this.callCreateGraph();
     });
 
+    this.graph.registerCallbackHandler(
+      "onNodeRemoved",
+      async (oCbInfo, node) => {
+        await this.callCreateGraph();
+      }
+    );
+
     return graph;
+  }
+
+  async callCreateGraph() {
+    try {
+      const graphPayload = MobjectGraphTransformer.Convert(this.graph);
+      console.log(graphPayload);
+      const status = await this.connection.createGraph(graphPayload);
+      console.log(status);
+      this.graph.update(status);
+      this.startStatusUpdates();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   startStatusUpdates() {
@@ -63,12 +100,12 @@ export class GraphEditor {
   scheduleNextUpdate() {
     this.statusTimeout = setTimeout(async () => {
       try {
-        console.log("get");
         const status = await this.connection.getStatus(this.graph.uuid);
         this.graph.update(status);
         this.scheduleNextUpdate();
-      } catch (e) {
-        console.log(e);
+      } catch (error) {
+        console.log(error);
+        this.stopStatusUpdates();
       }
     }, 500);
   }

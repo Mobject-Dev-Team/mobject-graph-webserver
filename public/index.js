@@ -20,6 +20,8 @@ var graph = new GraphEditor(
   api
 );
 
+window.graph = graph;
+
 document.getElementById("getBlueprintsBtn").addEventListener("click", () => {
   api.getBlueprints();
 });
