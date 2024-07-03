@@ -95,7 +95,11 @@ export class NodeParametersBlueprintHandler extends NodeBlueprintHandler {
         if (!widgetClasses.length) {
           throw new Error(`Unable to find widget of type :  ${type}`);
         }
-        const widget = new widgetClasses[0](name, prop, parameter, content);
+        const widget = new widgetClasses[0](name, node, {
+          property: prop,
+          parameter,
+          content,
+        });
 
         node.addCustomWidget(widget);
       });
@@ -132,7 +136,7 @@ export class NodeContentsBlueprintHandler extends NodeBlueprintHandler {
         if (!widgetClasses.length) {
           throw new Error(`Unable to find widget of type :  ${type}`);
         }
-        const widget = new widgetClasses[0](name, content);
+        const widget = new widgetClasses[0](name, node, { content });
 
         node.addCustomWidget(widget);
       });

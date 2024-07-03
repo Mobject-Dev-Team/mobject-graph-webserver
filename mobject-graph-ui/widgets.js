@@ -1,8 +1,6 @@
-export class Widgets {
-  static WILDCARD = "*";
-  static DISPLAY = "display";
-  static CONTROL = "control";
+import { DISPLAY, CONTROL, WILDCARD } from "./widget.js";
 
+export class Widgets {
   constructor() {
     this.widgets = new Map();
   }
@@ -26,39 +24,37 @@ export class Widgets {
 
   get(type, capability, identifier = undefined) {
     const specificKey = this._createKey(type, capability, identifier);
-    const wildcardKey = this._createKey(type, capability, Widgets.WILDCARD);
+    const wildcardKey = this._createKey(type, capability, WILDCARD);
     const specificWidgets = this._getWidgetsByKey(specificKey);
     const wildcardWidgets = this._getWidgetsByKey(wildcardKey);
     return Array.from(new Set([...specificWidgets, ...wildcardWidgets]));
   }
 
   getDisplaysOfType(type, identifier = undefined) {
-    return this.get(type, Widgets.DISPLAY, identifier);
+    return this.get(type, DISPLAY, identifier);
   }
 
   getControlsOfType(type, identifier = undefined) {
-    return this.get(type, Widgets.CONTROL, identifier);
+    return this.get(type, CONTROL, identifier);
   }
 
   has(type, capability, identifier = undefined) {
     const specificKey = this._createKey(type, capability, identifier);
-    const wildcardKey = this._createKey(type, capability, Widgets.WILDCARD);
+    const wildcardKey = this._createKey(type, capability, WILDCARD);
     return this.widgets.has(specificKey) || this.widgets.has(wildcardKey);
   }
 
   hasDisplay(type, identifier) {
-    const capability = Widgets.DISPLAY;
-    return this.has(type, capability, identifier);
+    return this.has(type, DISPLAY, identifier);
   }
 
   hasControl(type, identifier) {
-    const capability = Widgets.CONTROL;
-    return this.has(type, capability, identifier);
+    return this.has(type, CONTROL, identifier);
   }
 
   remove(type, capability, identifier = undefined) {
     const specificKey = this._createKey(type, capability, identifier);
-    const wildcardKey = this._createKey(type, capability, Widgets.WILDCARD);
+    const wildcardKey = this._createKey(type, capability, WILDCARD);
     this.widgets.delete(specificKey);
     this.widgets.delete(wildcardKey);
   }

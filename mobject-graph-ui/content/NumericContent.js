@@ -15,7 +15,7 @@ export class NumericContent {
   }
 
   get defaultValue() {
-    return this.content.defaultValue;
+    return this.content?.defaultValue || 0;
   }
 
   getMetadataOrDefault(key, defaultValue) {

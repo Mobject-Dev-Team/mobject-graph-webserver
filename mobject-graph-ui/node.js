@@ -10,6 +10,8 @@ export class Node extends LGraphNode {
     this._shape = 2;
   }
 
+  // this method was overridden as the size was not correctly
+  // handled by the standard method.
   addCustomWidget(widget) {
     super.addCustomWidget(widget);
     this.setSize(this.computeSize());
@@ -27,7 +29,7 @@ export class Node extends LGraphNode {
   }
 
   update(status) {
-    this.#eventEmitter.emit("nodeUpdated", status);
+    this.#eventEmitter.emit("nodeStatusUpdated", status);
   }
 
   computeSize(out) {

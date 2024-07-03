@@ -1,10 +1,10 @@
-import { DisplayWidgetBase, ControlWidgetBase } from "../widget-base.js";
+import { DisplayWidget, ControlWidget } from "../widget.js";
 import { deepEqual } from "../utils/DeepEqual.js";
 import { loadITcVnImageToImg } from "../utils/ITcVnImageConversion.js";
 
-export class ITcVnImageDisplayWidget extends DisplayWidgetBase {
-  constructor(name, content) {
-    super(name, content);
+export class ITcVnImageDisplayWidget extends DisplayWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
     this.image = new Image();
   }
 
@@ -69,7 +69,7 @@ export class ITcVnImageDisplayWidget extends DisplayWidgetBase {
     ctx.drawImage(this.image, this.margin, y, drawWidth, drawHeight);
   }
 }
-export class ITcVnImageControlWidget extends ControlWidgetBase {
+export class ITcVnImageControlWidget extends ControlWidget {
   constructor(name, property, parameter, content) {
     super(name, property, parameter, content);
   }

@@ -14,58 +14,62 @@
  * interface for displaying and controlling boolean states within the graphFramework environment.
  */
 
-import { DisplayWidgetBase, ControlWidgetBase } from "../widget-base.js";
+import { DisplayWidget, ControlWidget } from "../widget.js";
 import { LedComponent } from "../components/LedComponent.js";
 import { CheckboxComponent } from "../components/CheckboxComponent.js";
 import { ColorGenerator } from "../utils/ColorGenerator.js";
 
-export class BooleanDisplayWidget extends DisplayWidgetBase {
-  constructor(name, content) {
-    super(name, content);
-    this.led = new LedComponent(
-      name,
-      content.defaultValue,
-      new ColorGenerator(content.datatype.typeName)
-    );
+export class BooleanDisplayWidget extends DisplayWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
+
+    const defaultValue = options?.content?.defaultValue || false;
+    const type = options?.content?.datatype?.typeName || "";
+    const colorPallet = new ColorGenerator(type);
+
+    this.ledComponent = new LedComponent(name, defaultValue, colorPallet);
   }
 
-  onDisplayValueChanged(newValue, oldValue) {
-    this.led.isActive = newValue;
+  onContentUpdate(value) {
+    this.ledComponent.isActive = value;
   }
 
   computeSize() {
-    return this.led.computeSize();
+    return this.ledComponent.computeSize();
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    this.led.draw(ctx, node, widget_width, y, H);
+  draw(ctx, node, widget_width, y, H) {
+    this.ledComponent.draw(ctx, node, widget_width, y, H);
   }
 }
 
-export class BooleanControlWidget extends ControlWidgetBase {
-  constructor(name, property, parameter, content) {
-    super(name, property, parameter, content);
-    this.checkbox = new CheckboxComponent(
-      name,
-      parameter.defaultValue,
-      new ColorGenerator(parameter.datatype.typeName)
-    );
-    this.checkbox.on("onChange", (isChecked) => super.notifyChange(isChecked));
-  }
+export class BooleanControlWidget extends ControlWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
 
-  onDisplayValueChanged(newValue, oldValue) {
-    this.checkbox.isChecked = newValue;
+    const defaultValue = options?.parameter?.defaultValue || false;
+    const type = options?.parameter?.datatype?.typeName || "";
+    const colorPallet = new ColorGenerator(type);
+
+    this.checkboxComponent = new CheckboxComponent(
+      name,
+      defaultValue,
+      colorPallet
+    );
+    this.checkboxComponent.on("onChange", (isChecked) => {
+      this.setValue(isChecked);
+    });
   }
 
   computeSize() {
-    return this.checkbox.computeSize();
+    return this.checkboxComponent.computeSize();
   }
 
-  onMouse(event, pos, node) {
-    this.checkbox.onMouse(event, pos);
+  mouse(event, pos, node) {
+    this.checkboxComponent.onMouse(event, pos);
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    this.checkbox.draw(ctx, node, widget_width, y, H);
+  draw(ctx, node, widget_width, y, H) {
+    this.checkboxComponent.draw(ctx, node, widget_width, y, H);
   }
 }

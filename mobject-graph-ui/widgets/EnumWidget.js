@@ -1,56 +1,66 @@
-import { DisplayWidgetBase, ControlWidgetBase } from "../widget-base.js";
+import { DisplayWidget, ControlWidget } from "../widget.js";
 import { ComboboxComponent } from "../components/ComboboxComponent.js";
 import { SingleLineTextDisplayComponent } from "../components/SingleLineTextDisplayComponent.js";
 import { ColorGenerator } from "../utils/ColorGenerator.js";
 
-export class EnumDisplayWidget extends DisplayWidgetBase {
-  constructor(name, content) {
-    super(name, content);
-    this.textDisplay = new SingleLineTextDisplayComponent(
+export class EnumDisplayWidget extends DisplayWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
+
+    const defaultValue = options?.content?.defaultValue || "";
+    const type = options?.content?.datatype?.typeName || "";
+    const colorPallet = new ColorGenerator(type);
+
+    this.textDisplayComponent = new SingleLineTextDisplayComponent(
       name,
-      content.defaultValue,
-      new ColorGenerator(content.datatype.typeName)
+      defaultValue,
+      colorPallet
     );
   }
 
-  onDisplayValueChanged(newValue, oldValue) {
-    this.textDisplay.text = newValue;
+  onContentUpdate(value) {
+    this.textDisplayComponent.text = value;
   }
 
   computeSize() {
-    return this.textDisplay.computeSize();
+    return this.textDisplayComponent.computeSize();
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    this.textDisplay.draw(ctx, node, widget_width, y, H);
+  draw(ctx, node, widget_width, y, H) {
+    this.textDisplayComponent.draw(ctx, node, widget_width, y, H);
   }
 }
 
-export class EnumControlWidget extends ControlWidgetBase {
-  constructor(name, property, parameter, content) {
-    super(name, property, parameter, content);
-    this.combobox = new ComboboxComponent(
-      name,
-      parameter.defaultValue,
-      parameter.datatype.enumerations,
-      new ColorGenerator(parameter.datatype.typeName)
-    );
-    this.combobox.on("onChange", (selection) => super.notifyChange(selection));
-  }
+export class EnumControlWidget extends ControlWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
 
-  onDisplayValueChanged(newValue, oldValue) {
-    this.combobox.selection = newValue;
+    const defaultValue = options?.parameter?.defaultValue || "";
+    const enumerations = options?.parameter?.datatype?.enumerations || [];
+    const type = options?.parameter?.datatype?.typeName || "";
+    const colorPallet = new ColorGenerator(type);
+
+    this.comboboxComponent = new ComboboxComponent(
+      name,
+      defaultValue,
+      enumerations,
+      colorPallet
+    );
+
+    this.comboboxComponent.on("onChange", (selection) => {
+      this.setValue(selection);
+    });
   }
 
   computeSize() {
-    return this.combobox.computeSize();
+    return this.comboboxComponent.computeSize();
   }
 
-  onMouse(event, pos, node) {
-    this.combobox.onMouse(event, pos);
+  mouse(event, pos, node) {
+    this.comboboxComponent.onMouse(event, pos);
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    this.combobox.draw(ctx, node, widget_width, y, H);
+  draw(ctx, node, widget_width, y, H) {
+    this.comboboxComponent.draw(ctx, node, widget_width, y, H);
   }
 }

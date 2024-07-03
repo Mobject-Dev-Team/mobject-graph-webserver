@@ -1,55 +1,64 @@
-import { DisplayWidgetBase, ControlWidgetBase } from "../widget-base.js";
+import { DisplayWidget, ControlWidget } from "../widget.js";
 import { SingleLineTextDisplayComponent } from "../components/SingleLineTextDisplayComponent.js";
 import { SingleLineTextInputComponent } from "../components/SingleLineTextInputComponent.js";
 import { ColorGenerator } from "../utils/ColorGenerator.js";
 
-export class StringDisplayWidget extends DisplayWidgetBase {
-  constructor(name, content) {
-    super(name, content);
-    this.textDisplay = new SingleLineTextDisplayComponent(
+export class StringDisplayWidget extends DisplayWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
+
+    const defaultValue = options?.content?.defaultValue || "";
+    const type = options?.content?.datatype?.typeName || "";
+    const colorPallet = new ColorGenerator(type);
+
+    this.textDisplayComponent = new SingleLineTextDisplayComponent(
       name,
-      content.defaultValue,
-      new ColorGenerator(content.datatype.typeName)
+      defaultValue,
+      colorPallet
     );
   }
 
-  onDisplayValueChanged(newValue, oldValue) {
-    this.textDisplay.text = newValue;
+  onContentUpdate(value) {
+    this.textDisplayComponent.text = value;
   }
 
   computeSize() {
-    return this.textDisplay.computeSize();
+    return this.textDisplayComponent.computeSize();
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    this.textDisplay.draw(ctx, node, widget_width, y, H);
+  draw(ctx, node, widget_width, y, H) {
+    this.textDisplayComponent.draw(ctx, node, widget_width, y, H);
   }
 }
 
-export class StringControlWidget extends ControlWidgetBase {
-  constructor(name, property, parameter, content) {
-    super(name, property, parameter, content);
-    this.textInput = new SingleLineTextInputComponent(
-      name,
-      parameter.defaultValue,
-      new ColorGenerator(parameter.datatype.typeName)
-    );
-    this.textInput.on("onChange", (text) => super.notifyChange(text));
-  }
+export class StringControlWidget extends ControlWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
 
-  onDisplayValueChanged(newValue, oldValue) {
-    this.textInput.text = newValue;
+    const defaultValue = options?.parameter?.defaultValue || "";
+    const type = options?.parameter?.datatype?.typeName || "";
+    const colorPallet = new ColorGenerator(type);
+
+    this.textInputComponent = new SingleLineTextInputComponent(
+      name,
+      defaultValue,
+      colorPallet
+    );
+
+    this.textInputComponent.on("onChange", (text) => {
+      this.setValue(text);
+    });
   }
 
   computeSize() {
-    return this.textInput.computeSize();
+    return this.textInputComponent.computeSize();
   }
 
-  onMouse(event, pos, node) {
-    this.textInput.onMouse(event, pos);
+  mouse(event, pos, node) {
+    this.textInputComponent.onMouse(event, pos);
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    this.textInput.draw(ctx, node, widget_width, y, H);
+  draw(ctx, node, widget_width, y, H) {
+    this.textInputComponent.draw(ctx, node, widget_width, y, H);
   }
 }

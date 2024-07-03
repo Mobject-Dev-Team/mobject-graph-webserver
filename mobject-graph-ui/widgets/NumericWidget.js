@@ -27,66 +27,77 @@
  * Example usage and registration demonstrate how these widgets can be integrated with numeric data types
  * such as INT (integer) to enhance user interface interactions within the graphFramework.
  */
-import { DisplayWidgetBase, ControlWidgetBase } from "../widget-base.js";
+import { DisplayWidget, ControlWidget } from "../widget.js";
 import { NumericDisplayComponent } from "../components/NumericDisplayComponent.js";
 import { NumericContent } from "../content/NumericContent.js";
 import { ColorGenerator } from "../utils/ColorGenerator.js";
 import { NumericInputComponent } from "../components/NumericInputComponent.js";
 import { NumericParameter } from "../parameter/NumericParameter.js";
 
-export class NumericDisplayWidget extends DisplayWidgetBase {
-  constructor(name, content) {
-    super(name, content);
-    this.numericContent = new NumericContent(content);
-    this.numericDisplay = new NumericDisplayComponent(
+export class NumericDisplayWidget extends DisplayWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
+
+    const numericContent = new NumericContent(options.content);
+    const defaultValue = numericContent.defaultValue;
+    const precision = numericContent.precision;
+    const type = options?.content?.datatype?.typeName || "";
+    const colorPallet = new ColorGenerator(type);
+
+    this.numericDisplayComponent = new NumericDisplayComponent(
       name,
-      this.numericContent.defaultValue,
-      this.numericContent.precision,
-      new ColorGenerator(content.datatype.typeName)
+      defaultValue,
+      precision,
+      colorPallet
     );
   }
 
-  onDisplayValueChanged(newValue, oldValue) {
-    this.numericDisplay.value = newValue;
+  onContentUpdate(value) {
+    this.numericDisplayComponent.value = value;
   }
 
   computeSize() {
-    return this.numericDisplay.computeSize();
+    return this.numericDisplayComponent.computeSize();
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    this.numericDisplay.draw(ctx, node, widget_width, y, H);
+  draw(ctx, node, widget_width, y, H) {
+    this.numericDisplayComponent.draw(ctx, node, widget_width, y, H);
   }
 }
 
-export class NumericControlWidget extends ControlWidgetBase {
-  constructor(name, property, parameter, content) {
-    super(name, property, parameter, content);
-    this.numericParameter = new NumericParameter(parameter);
-    this.numericInput = new NumericInputComponent(
+export class NumericControlWidget extends ControlWidget {
+  constructor(name, parent, options) {
+    super(name, parent, options);
+
+    const numericParameter = new NumericParameter(options.parameter);
+    const defaultValue = numericParameter.defaultValue;
+    const precision = numericParameter.precision;
+    const limiter = numericParameter.getNumberLimiter();
+    const type = options?.parameter?.datatype?.typeName || "";
+    const colorPallet = new ColorGenerator(type);
+
+    this.numericInputComponent = new NumericInputComponent(
       name,
-      this.numericParameter.defaultValue,
-      this.numericParameter.precision,
-      this.numericParameter.getNumberLimiter(),
-      new ColorGenerator(parameter.datatype.typeName)
+      defaultValue,
+      precision,
+      limiter,
+      colorPallet
     );
 
-    this.numericInput.on("onChange", (value) => super.notifyChange(value));
-  }
-
-  onDisplayValueChanged(newValue, oldValue) {
-    this.numericInput.value = newValue;
+    this.numericInputComponent.on("onChange", (value) => {
+      this.setValue(value);
+    });
   }
 
   computeSize() {
-    return this.numericInput.computeSize();
+    return this.numericInputComponent.computeSize();
   }
 
-  onMouse(event, pos, node) {
-    this.numericInput.onMouse(event, pos, node);
+  mouse(event, pos, node) {
+    this.numericInputComponent.onMouse(event, pos, node);
   }
 
-  onDraw(ctx, node, widget_width, y, H) {
-    this.numericInput.draw(ctx, node, widget_width, y, H);
+  draw(ctx, node, widget_width, y, H) {
+    this.numericInputComponent.draw(ctx, node, widget_width, y, H);
   }
 }
