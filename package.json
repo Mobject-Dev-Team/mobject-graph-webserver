@@ -13,7 +13,7 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "express": "^4.19.1",
-    "mobject-client": "^1.0.0"
+    "mobject-client": "^2.0.0"
   },
   "devDependencies": {
     "browser-sync": "^3.0.2",

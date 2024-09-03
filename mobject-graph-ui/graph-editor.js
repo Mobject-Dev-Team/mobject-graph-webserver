@@ -1,5 +1,5 @@
 import { Graph } from "./graph.js";
-import { LGraphCanvas } from "/litegraph/src/lgraphcanvas.js";
+import { LGraphCanvas } from "./graph-canvas.js";
 import { MobjectGraphTransformer } from "./utils/litegraph-converter.js";
 
 export class GraphEditor {
@@ -52,7 +52,7 @@ export class GraphEditor {
               name,
               value
             );
-            console.log(reply);
+            // console.log(reply);
           } catch (e) {
             console.log(e);
           }
@@ -75,9 +75,9 @@ export class GraphEditor {
   async callCreateGraph() {
     try {
       const graphPayload = MobjectGraphTransformer.Convert(this.graph);
-      console.log(graphPayload);
+      // console.log(graphPayload);
       const status = await this.connection.createGraph(graphPayload);
-      console.log(status);
+      // console.log(status);
       this.graph.update(status);
       this.startStatusUpdates();
     } catch (e) {

@@ -21,49 +21,37 @@ app.use("/src", express.static("./mobject-graph-ui-vision-pack"));
 app.use("/", express.static("./public"));
 app.use(express.json());
 
-client
-  .connect()
-  .then(() => {
-    console.log("Connected to RPC server");
-    app.listen(port, () =>
-      console.log("Example app listening on http://127.0.0.1:" + port)
-    );
-  })
-  .catch((error) => {
-    console.error("Failed to connect to RPC server:", error);
-    process.exit(1);
-  });
+client.connect().catch((error) => {
+  console.error("Initial connection to RPC server failed:", error);
+});
+
+app.listen(port, () => console.log("Listening on http://127.0.0.1:" + port));
 
 process.on("SIGINT", () => {
   console.log("Disconnecting from RPC server...");
-  client.disconnect().then(() => {
-    console.log("Disconnected");
-    process.exit(0);
-  });
+  client
+    .disconnect()
+    .then(() => {
+      console.log("Disconnected");
+    })
+    .finally(() => {
+      process.exit(0);
+    });
 });
 
-app.post("/rpc/:methodName", async (req, res) => {
+app.post("/rpc/:methodName", async (req, res, next) => {
   const methodName = req.params.methodName;
-  // console.log(methodName);
-  // console.log(JSON.stringify(req.body));
-  const params = req.body;
-
-  if (typeof params !== "object" || params === null) {
-    return res.status(400).send("Invalid parameters");
-  }
+  const params = req.body || {};
 
   try {
+    if (!client.isConnected) {
+      await client.connect();
+    }
     const result = await client.rpcCall(methodName, params);
     res.json(result);
   } catch (error) {
-    console.error(`Error calling RPC method ${methodName}:`, error);
-    res.status(500).send(error);
+    res.status(500).send(error.message);
   }
-});
-
-app.post("/assets/getAssets", async (req, res) => {
-  // check users assets directory,
-  // return node blueprints for asset collection.
 });
 
 browserSync.init({

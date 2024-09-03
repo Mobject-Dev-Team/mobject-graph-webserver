@@ -7,8 +7,6 @@ import {
   NodeParametersBlueprintHandler,
   NodeContentsBlueprintHandler,
 } from "./node-blueprint-handlers.js";
-import { Graph } from "./graph.js";
-import { LGraphCanvas } from "/litegraph/src/lgraphcanvas.js";
 
 // look after the widgets
 // have a .RegisterNodesByBlueprint
