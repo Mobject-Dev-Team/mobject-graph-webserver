@@ -17,7 +17,7 @@ LGraphCanvas.prototype.checkDropItem = function (e) {
         return;
       }
       node.pos = [e.canvasX, e.canvasY];
-      this.graph.add(node, false, { doProcessChange: false });
+      this.graph.add(node, false, { doProcessChange: true });
       node.processCallbackHandlers(
         "onDropFile",
         {

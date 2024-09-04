@@ -21,7 +21,6 @@ export class GraphEditor {
   }
 
   setupCanvas(width, height) {
-    // Create and configure the canvas element
     this.canvas = document.createElement("canvas");
     this.canvas.width = width;
     this.canvas.height = height;
@@ -29,7 +28,6 @@ export class GraphEditor {
   }
 
   initializeGraph() {
-    // Create and initialize the graph and canvas
     const graph = new Graph();
     new LGraphCanvas(this.canvas, graph);
     this.graph = graph;
@@ -52,7 +50,6 @@ export class GraphEditor {
               name,
               value
             );
-            // console.log(reply);
           } catch (e) {
             console.log(e);
           }
@@ -75,9 +72,8 @@ export class GraphEditor {
   async callCreateGraph() {
     try {
       const graphPayload = MobjectGraphTransformer.Convert(this.graph);
-      // console.log(graphPayload);
+      this.stopStatusUpdates();
       const status = await this.connection.createGraph(graphPayload);
-      // console.log(status);
       this.graph.update(status);
       this.startStatusUpdates();
     } catch (e) {
@@ -107,6 +103,6 @@ export class GraphEditor {
         console.log(error);
         this.stopStatusUpdates();
       }
-    }, 500);
+    }, 1000);
   }
 }

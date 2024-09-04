@@ -12,6 +12,7 @@ export class Node extends LGraphNode {
 
   // this method was overridden as the size was not correctly
   // handled by the standard method.
+
   addCustomWidget(widget) {
     super.addCustomWidget(widget);
     this.resetSize();
@@ -62,6 +63,23 @@ export class Node extends LGraphNode {
     }
 
     return size;
+  }
+
+  setPropertyDefaultValue(name, value) {
+    this.properties ||= {};
+
+    if (value === this.properties[name]) {
+      return;
+    }
+
+    this.properties[name] = value;
+    const widgetToUpdate = this.widgets?.find(
+      (widget) => widget && widget.options?.property === name
+    );
+
+    if (widgetToUpdate) {
+      widgetToUpdate.value = value;
+    }
   }
 
   onDropFile(file, widgetName = null) {

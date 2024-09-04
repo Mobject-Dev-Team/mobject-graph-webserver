@@ -31,6 +31,8 @@ import {
 export class GraphFramework {
   static instance;
 
+  debug = false;
+
   constructor() {
     if (GraphFramework.instance) {
       return GraphFramework.instance;
@@ -42,6 +44,10 @@ export class GraphFramework {
 
     this.liteGraph = LiteGraph;
     this.widgets = new Widgets();
+
+    this.liteGraph.unregisterNodeType("graph/subgraph");
+    this.liteGraph.unregisterNodeType("graph/input");
+    this.liteGraph.unregisterNodeType("graph/output");
 
     this.nodeClassFactory = new NodeClassFactory(this.widgets);
     this.nodeClassFactory.registerHandler(new NodeInputPortBlueprintHandler());
@@ -85,6 +91,11 @@ export class GraphFramework {
     return GraphFramework.instance;
   }
 
+  log(...args) {
+    if (!this.debug) return;
+    console.log(...args);
+  }
+
   install(graphPack) {
     graphPack.install(this);
   }
@@ -102,20 +113,22 @@ export class GraphFramework {
       const nodeType =
         this.nodeClassFactory.getNodeTypeFromBlueprint(blueprint);
       if (!nodeType) {
-        console.log("Failed to determine node type from blueprint.");
+        this.log("Failed to determine node type from blueprint.");
         return;
       }
 
       const nodeClass = this.nodeClassFactory.create(blueprint);
       if (!nodeClass) {
-        console.log("Unable to create node class from blueprint.", nodeType);
-        console.log(blueprint);
+        this.log(
+          "Unable to create node class from blueprint.",
+          nodeType,
+          blueprint
+        );
         return;
       }
-      console.log(nodeType);
       this.registerNodeClass(nodeType, nodeClass);
     } else {
-      console.error("No blueprint provided to installNodeBlueprint.");
+      this.log("No blueprint provided to installNodeBlueprint.");
     }
   }
 

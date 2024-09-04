@@ -66,6 +66,15 @@ export class ControlWidget {
     return this.value;
   }
 
+  setDefaultValue(value) {
+    this.value = value;
+
+    if (this.#parent && this.#property && this.#property.name) {
+      this.#parent?.setPropertyDefaultValue(this.#property.name, value);
+      this.#parent?.setDirtyCanvas(true, true);
+    }
+  }
+
   triggerParentResetSize() {
     if (this.#parent) this.#parent.resetSize();
   }

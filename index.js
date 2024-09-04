@@ -14,6 +14,8 @@ const client = new AdsRpcClient(
 const litegraphPath = path.join(__dirname, "litegraph.js");
 const port = 8000;
 
+app.use(express.json({ limit: "50mb" }));
+
 app.use("/litegraph/css", express.static(path.join(litegraphPath, "css")));
 app.use("/litegraph/src", express.static(path.join(litegraphPath, "src")));
 app.use("/src", express.static("./mobject-graph-ui"));

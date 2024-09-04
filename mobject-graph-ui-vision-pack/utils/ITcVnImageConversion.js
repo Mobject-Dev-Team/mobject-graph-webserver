@@ -25,7 +25,7 @@
 */
 
 export function loadITcVnImageToImg(img, itcvnimage) {
-  // Destructure the data object
+  if (!itcvnimage) return;
   const {
     imageInfo: { nWidth, nHeight, stPixelFormat },
     imageData,
