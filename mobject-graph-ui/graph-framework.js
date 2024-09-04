@@ -86,7 +86,7 @@ export class GraphFramework {
   }
 
   install(graphPack) {
-    graphPack.registerWidgets(this);
+    graphPack.install(this);
   }
 
   installNodeBlueprints(blueprints) {
@@ -112,7 +112,7 @@ export class GraphFramework {
         console.log(blueprint);
         return;
       }
-
+      console.log(nodeType);
       this.registerNodeClass(nodeType, nodeClass);
     } else {
       console.error("No blueprint provided to installNodeBlueprint.");
@@ -121,6 +121,19 @@ export class GraphFramework {
 
   registerWidgetType(Widget, type, identifier) {
     this.widgets.add(Widget, type, identifier);
+  }
+
+  registerFileAssociation(fileExtensions, nodeType, widgetName = null) {
+    for (let fileExtension of fileExtensions) {
+      if (fileExtension && typeof fileExtension === "string") {
+        this.liteGraph.node_types_by_file_extension[
+          fileExtension.toLowerCase()
+        ] = {
+          type: nodeType,
+          widgetName,
+        };
+      }
+    }
   }
 
   getVersion() {

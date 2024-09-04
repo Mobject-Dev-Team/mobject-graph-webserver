@@ -14,7 +14,7 @@ export class Node extends LGraphNode {
   // handled by the standard method.
   addCustomWidget(widget) {
     super.addCustomWidget(widget);
-    this.setSize(this.computeSize());
+    this.resetSize();
     if (widget.registerWithParent) {
       widget.registerWithParent(this);
     }
@@ -30,6 +30,10 @@ export class Node extends LGraphNode {
 
   update(status) {
     this.#eventEmitter.emit("nodeStatusUpdated", status);
+  }
+
+  resetSize() {
+    this.setSize(this.computeSize());
   }
 
   computeSize(out) {
@@ -58,5 +62,25 @@ export class Node extends LGraphNode {
     }
 
     return size;
+  }
+
+  onDropFile(file, widgetName = null) {
+    if (this.widgets && this.widgets.length) {
+      if (widgetName !== null) {
+        const widget = this.widgets.find((w) => w.name === widgetName);
+        if (widget && widget.onDropFile && widget.onDropFile(file)) {
+          return;
+        }
+      } else {
+        for (const widget of this.widgets) {
+          if (widget.onDropFile && widget.onDropFile(file)) {
+            return;
+          }
+        }
+      }
+    }
+    console.log(
+      `Node ${this.type} was registered to handle a dropped file, but failed to handle it.`
+    );
   }
 }

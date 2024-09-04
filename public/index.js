@@ -1,3 +1,4 @@
+import { GraphFramework } from "../src/graph-framework.js";
 import { IecDatatypesPack } from "../src/iec-datatypes-pack.js";
 import { VisionPack } from "../src/vision-pack.js";
 
@@ -5,11 +6,12 @@ import { FetchRpcClient } from "../src/fetch-rpc-client.js";
 import { GraphFrameworkApi } from "../src/graph-framework-api.js";
 import { GraphEditor } from "../src/graph-editor.js";
 
-IecDatatypesPack.Install();
-VisionPack.Install();
+var graphFramework = new GraphFramework();
+graphFramework.install(IecDatatypesPack);
+graphFramework.install(VisionPack);
 
 var client = new FetchRpcClient();
-var api = new GraphFrameworkApi(client);
+var api = new GraphFrameworkApi(client, graphFramework);
 
 var graph = new GraphEditor(
   {

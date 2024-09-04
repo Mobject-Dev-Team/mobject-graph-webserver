@@ -30,6 +30,10 @@ export class DisplayWidget {
       this.#parent?.setDirtyCanvas(true, true);
     });
   }
+
+  triggerParentResetSize() {
+    if (this.#parent) this.#parent.resetSize();
+  }
 }
 
 export class ControlWidget {
@@ -60,5 +64,9 @@ export class ControlWidget {
 
   getValue() {
     return this.value;
+  }
+
+  triggerParentResetSize() {
+    if (this.#parent) this.#parent.resetSize();
   }
 }

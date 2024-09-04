@@ -1,8 +1,9 @@
 import { GraphFramework } from "../src/graph-framework.js";
 
 export class GraphFrameworkApi {
-  constructor(client) {
+  constructor(client, graphFramework = new GraphFramework()) {
     this.client = client;
+    this.graphFramework = graphFramework;
   }
 
   async createGraph(graph) {
@@ -24,11 +25,11 @@ export class GraphFrameworkApi {
     return await this.client.callRPC("GetStatus", { graphUuid });
   }
 
-  getBlueprints(graphFramework = new GraphFramework()) {
+  getBlueprints() {
     this.client
       .callRPC("GetBlueprints")
       .then((result) => {
-        graphFramework.installNodeBlueprints(result.blueprints);
+        this.graphFramework.installNodeBlueprints(result.blueprints);
       })
       .catch((error) => console.error("RPC call failed:", error));
   }

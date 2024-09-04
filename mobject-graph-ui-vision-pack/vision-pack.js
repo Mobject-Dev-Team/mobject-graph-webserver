@@ -6,11 +6,12 @@ import {
 } from "./widgets/ITcVnImageWidget.js";
 
 export class VisionPack {
-  static Install(graphFramework = new GraphFramework()) {
-    this.RegisterWidgets(graphFramework);
+  static install(graphFramework = new GraphFramework()) {
+    this.registerWidgets(graphFramework);
+    this.registerFileAssociation(graphFramework);
   }
 
-  static RegisterWidgets(graphFramework) {
+  static registerWidgets(graphFramework) {
     graphFramework.registerWidgetType(
       ITcVnImageControlWidget,
       "INTERFACE",
@@ -20,6 +21,14 @@ export class VisionPack {
       ITcVnImageDisplayWidget,
       "INTERFACE",
       "ITcVnImage"
+    );
+  }
+
+  static registerFileAssociation(graphFramework) {
+    graphFramework.registerFileAssociation(
+      ["jpg", "png"],
+      "Literal/INTERFACE/ITcVnImage",
+      "value"
     );
   }
 }

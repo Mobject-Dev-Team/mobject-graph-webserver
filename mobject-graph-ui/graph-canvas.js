@@ -1,6 +1,37 @@
 import { LGraphCanvas } from "/litegraph/src/lgraphcanvas.js";
 import { LiteGraph } from "/litegraph/src/litegraph.js";
 
+// This function has been overidden to expand the functionality to add graceful fall over if the node
+// has not yet been registered with litegraph (this can happen if you are still waiting for blueprints)
+
+LGraphCanvas.prototype.checkDropItem = function (e) {
+  if (e.dataTransfer.files.length) {
+    var file = e.dataTransfer.files[0];
+    var ext = LGraphCanvas.getFileExtension(file.name);
+    var nodetype = LiteGraph.node_types_by_file_extension[ext];
+    if (nodetype) {
+      this.graph.beforeChange();
+      var node = LiteGraph.createNode(nodetype.type);
+      if (!node) {
+        console.log(nodetype.type, "is not available to handle", ext);
+        return;
+      }
+      node.pos = [e.canvasX, e.canvasY];
+      this.graph.add(node, false, { doProcessChange: false });
+      node.processCallbackHandlers(
+        "onDropFile",
+        {
+          def_cb: node.onDropFile,
+        },
+        file,
+        nodetype.widgetName || null
+      );
+      this.graph.onGraphChanged({ action: "fileDrop", doSave: true });
+      this.graph.afterChange();
+    }
+  }
+};
+
 // This function has been overridden as there was an error in the core litegraph code. The mouse up event was not sent to the
 // widget when the mouse was released outside of the widget area.
 // this caused numeric controls to miss the onMouseUp and as such the value would not update.
