@@ -97,6 +97,7 @@ export class GraphEditor {
     this.statusTimeout = setTimeout(async () => {
       try {
         const status = await this.connection.getStatus(this.graph.uuid);
+        console.log(status);
         this.graph.update(status);
         this.scheduleNextUpdate();
       } catch (error) {

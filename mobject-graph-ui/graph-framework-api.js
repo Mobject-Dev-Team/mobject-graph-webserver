@@ -7,6 +7,7 @@ export class GraphFrameworkApi {
   }
 
   async createGraph(graph) {
+    console.log(graph);
     return await this.client.callRPC("CreateGraph", {
       graph,
     });
@@ -29,6 +30,7 @@ export class GraphFrameworkApi {
     this.client
       .callRPC("GetBlueprints")
       .then((result) => {
+        console.log(result);
         this.graphFramework.installNodeBlueprints(result.blueprints);
       })
       .catch((error) => console.error("RPC call failed:", error));
