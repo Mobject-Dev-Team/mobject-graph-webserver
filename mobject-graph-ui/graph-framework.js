@@ -96,8 +96,8 @@ export class GraphFramework {
     console.log(...args);
   }
 
-  install(graphPack) {
-    graphPack.install(this);
+  install(graphPack, options) {
+    graphPack.install(this, options);
   }
 
   installNodeBlueprints(blueprints) {
@@ -147,6 +147,10 @@ export class GraphFramework {
         };
       }
     }
+  }
+
+  registerExtension(extension) {
+    extension.registerWithGraph(this);
   }
 
   getVersion() {

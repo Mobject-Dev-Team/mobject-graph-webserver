@@ -1,17 +1,17 @@
-import { GraphFramework } from "../src/graph-framework.js";
+import { GraphFramework } from "../graph-framework.js";
 import {
   BooleanControlWidget,
   BooleanDisplayWidget,
-} from "./widgets/BooleanWidget.js";
+} from "../widgets/BooleanWidget.js";
 import {
   NumericControlWidget,
   NumericDisplayWidget,
-} from "./widgets/NumericWidget.js";
+} from "../widgets/NumericWidget.js";
 import {
   StringControlWidget,
   StringDisplayWidget,
-} from "./widgets/StringWidget.js";
-import { EnumControlWidget, EnumDisplayWidget } from "./widgets/EnumWidget.js";
+} from "../widgets/StringWidget.js";
+import { EnumControlWidget, EnumDisplayWidget } from "../widgets/EnumWidget.js";
 
 export class IecDatatypesPack {
   static install(graphFramework = new GraphFramework()) {
