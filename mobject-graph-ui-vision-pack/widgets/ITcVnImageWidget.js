@@ -194,7 +194,7 @@ export class ITcVnImageControlWidget extends ControlWidget {
       imageData: bytesToBase64(imageData.data),
     };
 
-    console.log("Serialized Image Data:", image);
+    // console.log("Serialized Image Data:", image);
     return image;
   }
 

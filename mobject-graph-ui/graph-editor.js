@@ -74,6 +74,7 @@ export class GraphEditor {
       const graphPayload = MobjectGraphTransformer.Convert(this.graph);
       this.stopStatusUpdates();
       const status = await this.connection.createGraph(graphPayload);
+      console.log("api create graph reply >", status);
       this.graph.update(status);
       this.startStatusUpdates();
     } catch (e) {
@@ -97,7 +98,7 @@ export class GraphEditor {
     this.statusTimeout = setTimeout(async () => {
       try {
         const status = await this.connection.getStatus(this.graph.uuid);
-        console.log(status);
+        console.log("api get status reply >", status);
         this.graph.update(status);
         this.scheduleNextUpdate();
       } catch (error) {

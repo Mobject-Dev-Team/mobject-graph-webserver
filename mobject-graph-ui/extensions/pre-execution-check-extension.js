@@ -19,7 +19,7 @@ export class PreExecutionCheckExtensionBlueprintHandler extends NodeBlueprintHan
   }
 
   handle(node, blueprint, next) {
-    console.log(blueprint);
+    // console.log(blueprint);
     if (!blueprint.extensions) return;
 
     // Find the 'precheck' extension in the 'extensions' array
@@ -29,7 +29,7 @@ export class PreExecutionCheckExtensionBlueprintHandler extends NodeBlueprintHan
 
     // Check if the 'precheck' extension exists
     if (!precheckExtension) {
-      return "Precheck extension not found.";
+      return;
     }
 
     // Check if the 'precheck' extension has the 'enable' parameter and if it is enabled
@@ -37,9 +37,9 @@ export class PreExecutionCheckExtensionBlueprintHandler extends NodeBlueprintHan
       (param) => param.name === "enable"
     );
     if (enableParameter && enableParameter.defaultValue === true) {
-      console.log("Precheck extension is enabled.");
+      // console.log("Precheck extension is enabled.");
     } else {
-      console.log("Precheck extension is disabled.");
+      // console.log("Precheck extension is disabled.");
     }
 
     // registerForContentUpdates() {

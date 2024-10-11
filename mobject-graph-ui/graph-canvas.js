@@ -32,6 +32,58 @@ LGraphCanvas.prototype.checkDropItem = function (e) {
   }
 };
 
+// This function has been overridden due to an error when cloning a node.  It calls selectNodes and passes
+// the cloned nodes in as members of an object.
+LGraphCanvas.prototype.selectNodes = function (
+  nodes,
+  add_to_current_selection
+) {
+  if (!add_to_current_selection) {
+    this.deselectAllNodes();
+  }
+
+  // Start of modification
+  nodes = nodes || this.graph._nodes;
+  if (typeof nodes === "string") {
+    nodes = [nodes];
+  } else if (!Array.isArray(nodes) && typeof nodes === "object") {
+    nodes = Object.values(nodes);
+  }
+  // end of modification
+
+  Object.values(nodes).forEach((node) => {
+    if (node.is_selected) {
+      this.deselectNode(node);
+      return;
+    }
+
+    node.is_selected = true;
+    this.selected_nodes[node.id] = node;
+
+    node.processCallbackHandlers("onSelected", {
+      def_cb: node.onSelected,
+    });
+
+    node.inputs?.forEach((input) => {
+      this.highlighted_links[input.link] = true;
+    });
+
+    node.outputs?.forEach((out) => {
+      out.links?.forEach((link) => {
+        this.highlighted_links[link] = true;
+      });
+    });
+  });
+  this.processCallbackHandlers(
+    "onSelectionChange",
+    {
+      def_cb: this.onSelectionChange,
+    },
+    this.selected_nodes
+  );
+  this.setDirty(true);
+};
+
 // This function has been overridden as there was an error in the core litegraph code. The mouse up event was not sent to the
 // widget when the mouse was released outside of the widget area.
 // this caused numeric controls to miss the onMouseUp and as such the value would not update.
@@ -459,6 +511,16 @@ LGraphCanvas.prototype.processMouseUp = function (e) {
   e.stopPropagation();
   e.preventDefault();
   return false;
+};
+
+// added to prevent error with no return value
+LGraphCanvas.prototype.onDropItem = function (e) {
+  return {
+    return_value: false,
+    result_priority: 0,
+    prevent_default: false,
+    stop_replication: false,
+  };
 };
 
 export { LGraphCanvas };

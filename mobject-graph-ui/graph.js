@@ -26,4 +26,11 @@ export class Graph extends LGraph {
       });
     }
   }
+
+  beforeChange() {
+    // before a graph change
+  }
+  afterChange() {
+    // after a graph change
+  }
 }
