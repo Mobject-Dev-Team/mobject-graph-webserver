@@ -24,7 +24,7 @@ export class NumericDisplayComponent {
   }
 
   computeSize() {
-    return new Float32Array([60, 20]);
+    return new Float32Array([220, 20]);
   }
 
   draw(ctx, node, widget_width, y, H) {

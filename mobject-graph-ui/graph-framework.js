@@ -43,6 +43,7 @@ export class GraphFramework {
     }
 
     this.liteGraph = LiteGraph;
+    this.liteGraph.initialize();
     this.widgets = new Widgets();
 
     this.liteGraph.unregisterNodeType("graph/subgraph");

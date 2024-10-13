@@ -58,7 +58,7 @@ export class ComboboxComponent {
   }
 
   computeSize() {
-    let size = new Float32Array([60, 20]);
+    let size = new Float32Array([220, 20]);
     var maxValueWidth = 0;
 
     this.options.forEach((optionsText) => {

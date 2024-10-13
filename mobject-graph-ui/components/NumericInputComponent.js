@@ -43,7 +43,7 @@ export class NumericInputComponent {
   }
 
   computeSize() {
-    return new Float32Array([60, 20]);
+    return new Float32Array([220, 20]);
   }
 
   onMouse(event, pos, node) {

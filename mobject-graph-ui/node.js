@@ -93,14 +93,6 @@ export class Node extends LGraphNode {
   }
 
   onDropFile(file, widgetName = null) {
-    // console.log("here");
-    // return {
-    //   return_value: true, // The actual value you want to return or use in the process.
-    //   result_priority: 1, // Priority of the returned result. Higher priority results override lower ones.
-    //   prevent_default: true, // If true, it will prevent the default callback from being executed.
-    //   stop_replication: true, // If true, it will stop further callback execution.
-    // };
-
     if (this.widgets && this.widgets.length) {
       if (widgetName !== null) {
         const widget = this.widgets.find((w) => w.name === widgetName);
