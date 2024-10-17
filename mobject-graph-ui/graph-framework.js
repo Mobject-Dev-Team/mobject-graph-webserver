@@ -49,6 +49,7 @@ export class GraphFramework {
     this.liteGraph.unregisterNodeType("graph/subgraph");
     this.liteGraph.unregisterNodeType("graph/input");
     this.liteGraph.unregisterNodeType("graph/output");
+    this.liteGraph.unregisterNodeType("graph/function");
 
     this.nodeClassFactory = new NodeClassFactory(this.widgets);
     this.nodeClassFactory.registerHandler(new NodeInputPortBlueprintHandler());

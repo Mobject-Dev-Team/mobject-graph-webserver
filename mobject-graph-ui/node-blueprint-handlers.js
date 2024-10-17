@@ -32,13 +32,25 @@ export class NodeBlueprintHandler {
   }
 }
 
+// Helper function to recursively gather types and base types
+function getType(datatype) {
+  let typeString = datatype.identifier
+    ? `${datatype.typeName} (${datatype.identifier})`
+    : datatype.typeName;
+
+  // Check if there's a baseDatatype and append it recursively
+  if (datatype.baseDatatype) {
+    typeString += `,${getType(datatype.baseDatatype)}`;
+  }
+
+  return typeString;
+}
+
 export class NodeInputPortBlueprintHandler extends NodeBlueprintHandler {
   handle(node, blueprint, next) {
     if (blueprint.inputPorts) {
       blueprint.inputPorts.forEach((input) => {
-        const type = input.datatype.identifier
-          ? `${input.datatype.typeName} (${input.datatype.identifier})`
-          : input.datatype.typeName;
+        const type = getType(input.datatype);
         node.addInput(input.name, type);
       });
     }
@@ -50,10 +62,7 @@ export class NodeOutputPortBlueprintHandler extends NodeBlueprintHandler {
   handle(node, blueprint, next) {
     if (blueprint.outputPorts) {
       blueprint.outputPorts.forEach((output) => {
-        const type = output.datatype.identifier
-          ? `${output.datatype.typeName} (${output.datatype.identifier})`
-          : output.datatype.typeName;
-
+        const type = getType(output.datatype);
         node.addOutput(output.name, type);
       });
     }
